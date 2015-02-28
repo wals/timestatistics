@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:key="allseconds" android:title="@string/allseconds_title"></PreferenceCategory>
-    <PreferenceScreen android:title="@string/countdownscreen_title">
-        <CheckBoxPreference android:key="iscountdown" android:title="@string/iscountdown_title" android:summary="@string/iscountdown_summary"/>
-        <EditTextPreference android:key="countdownnum" android:title="@string/countdownnum_title" android:defaultValue="120" android:numeric="integer" />
+    <PreferenceCategory android:key="allseconds" android:title="@string/allSecondsCategoryTitle"></PreferenceCategory>
+    <PreferenceScreen android:title="@string/countdownScreenTitle">
+        <CheckBoxPreference android:key="iscountdown" android:title="@string/isCountdownTitle" android:summary="@string/isCountdownSummary"/>
+        <EditTextPreference android:key="countdownnum" android:title="@string/countdownNumTitle" android:defaultValue="120" android:numeric="integer" />
      </PreferenceScreen>
-    <PreferenceCategory android:title="@string/aaaaaaaaaaaaaaaa"></PreferenceCategory>
-    <PreferenceScreen android:title="@string/bbbbbbbbbbbbbbb">
-        <Preference android:summary="@string/backup_summary" android:title="@string/backup_title" android:key="backup"/>
-        <Preference android:summary="@string/restore_summary" android:title="@string/restore_title" android:key="restore"/>
-        <Preference android:summary="@string/clear_summary" android:title="@string/clear_title" android:key="cleardata"/>
+    <PreferenceScreen android:title="@string/backupScreenTitle">
+        <Preference android:summary="@string/backupSummary" android:title="@string/backupTitle" android:key="backup"/>
+        <Preference android:summary="@string/restoreSummary" android:title="@string/restoreTitle" android:key="restore"/>
+        <Preference android:summary="@string/clearSummary" android:title="@string/clearTitle" android:key="cleardata"/>
     </PreferenceScreen>
-    <PreferenceScreen android:title="@string/cccccccccccccc">
-        <Preference android:title="@string/feedback_title" android:key="feedback" />
-        <Preference android:key="mstore" android:title="@string/mstore_title" />
+    <PreferenceScreen android:title="@string/feedbackTitle">
+        <Preference android:title="@string/feedbackTitle" android:key="feedback" />
+        <Preference android:key="mstore" android:title="@string/mstoreTitle" />
     </PreferenceScreen>
-    <PreferenceScreen android:title="@string/AdvancedSetting_title">
-        <CheckBoxPreference android:key="isiconhide" android:title="@string/isiconhide_title" android:summary="@string/isiconhide_summary" />
+    <PreferenceScreen android:title="@string/advancedSettingTitle">
+        <CheckBoxPreference android:key="isiconhide" android:title="@string/isIconHideTitle" android:summary="@string/isIconHideSummary" />
         
     </PreferenceScreen>
-    <PreferenceCategory android:title="@string/quitbar_title">
-        <Preference android:title="@string/quit_title" android:key="quit"/>
+    <PreferenceCategory android:title="@string/quitbarTitle">
+        <Preference android:title="@string/quitTitle" android:key="quit"/>
         
     </PreferenceCategory>
     

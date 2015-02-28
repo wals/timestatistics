@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- TODO ask for Qian's help -->
     <string name="_blank"> </string>
-    <string name="advancedSettingTitle">Advanced Settings</string>
+    <string name="advancedSettingTitle">更多设置</string>
     <string name="allSecondsCategoryTitle">手机总使用时间</string>
-    <string name="appName">MeiTime</string>
+    <string name="appName">魅时间</string>
     <string name="backupScreenTitle">备份还原</string>
     <string name="backupTitle">备份</string>
     <string name="backupSummary">备份文件位于下载文件夹中的timestatistics文件夹中，文件名为魅时间备份.bak\n应用会自动将每次备份内容拷贝一份同文件夹并以当前时间命名</string>

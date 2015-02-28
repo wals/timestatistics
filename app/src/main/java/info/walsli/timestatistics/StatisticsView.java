@@ -164,18 +164,6 @@ public class StatisticsView extends View {
             }
             canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
             c.close();
-			/*
-			canvas.drawArc(rectf2,10,20,false,p);
-			canvas.drawArc(rectf2,60,30,false,p);
-			canvas.drawArc(rectf2,110,60,false,p);
-			canvas.drawArc(rectf2,190,40,false,p);
-			canvas.drawArc(rectf2,280,10,false,p);
-			canvas.drawArc(rectf2,310,20,false,p);
-
-			*/
-
-
-
 
             p.setTypeface(MyApplication.gettypeface());
             p.setTextSize(140);
