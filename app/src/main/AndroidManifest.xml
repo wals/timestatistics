@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="info.walsli.timestatistics">
+    package="info.walsli.timestatistics" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,24 +16,25 @@
         <activity
             android:name=".BlankActivity"
             android:excludeFromRecents="true"
-            android:label="@string/_blank">
+            android:label="@string/appName" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
+            android:excludeFromRecents="true"
             android:label="@string/_blank"
             android:screenOrientation="portrait"
-            android:excludeFromRecents="true"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         <activity
             android:name=".SettingActivity"
             android:excludeFromRecents="true"
-            android:screenOrientation="portrait"
             android:label="@string/settingActivityTitle"
+            android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         <activity
@@ -44,6 +46,13 @@
         </activity>
         <activity
             android:name=".StatisticsActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/_blank"
+            android:screenOrientation="portrait"
+            android:uiOptions="splitActionBarWhenNarrow" >
+        </activity>
+        <activity
+            android:name=".AboutActivity"
             android:excludeFromRecents="true"
             android:label="@string/_blank"
             android:screenOrientation="portrait"
@@ -61,10 +70,12 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/mywidget" />
         </receiver>
+
     </application>
 
 </manifest>

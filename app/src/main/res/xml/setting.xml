@@ -18,6 +18,7 @@
         <CheckBoxPreference android:key="isiconhide" android:title="@string/isIconHideTitle" android:summary="@string/isIconHideSummary" />
         
     </PreferenceScreen>
+    <Preference android:title="@string/aboutTitle" android:key="about" />
     <PreferenceCategory android:title="@string/quitbarTitle">
         <Preference android:title="@string/quitTitle" android:key="quit"/>
         

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- TODO ask for Qian's help -->
-    <string name="_blank"> </string>
+    <string name="_blank"></string>
+    <string name="aboutTitle">About</string>
     <string name="advancedSettingTitle">Advanced Settings</string>
     <string name="allSecondsCategoryTitle">手机总使用时间</string>
     <string name="appName">MeiTime</string>
@@ -23,4 +25,9 @@
     <string name="restoreSummary">请将备份文件置于下载文件夹中的timestatistics文件夹中并命名为魅时间备份.bak</string>
     <string name="restoreTitle">还原</string>
     <string name="settingActivityTitle">设置</string>
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 </resources>

@@ -46,7 +46,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
         tintManager.setNavigationBarTintEnabled(true);
-        tintManager.setTintColor(Color.rgb((int) (Math.random() * 255),(int) (Math.random() * 255),(int) (Math.random() * 255)));
+        tintManager.setTintColor(Color.BLACK);
 
         getPreferenceManager().setSharedPreferencesName("info.walsli.timestatistics");
         addPreferencesFromResource(R.xml.setting);
@@ -58,6 +58,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         setallsecondssummary();
 
         helper = new DBHelper(getApplicationContext());
+
     }
 
     public void setiscountdown()
@@ -113,7 +114,8 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         restore.setOnPreferenceClickListener(this);
         Preference cleardata=findPreference("cleardata");
         cleardata.setOnPreferenceClickListener(this);
-
+        Preference about=findPreference("about");
+        about.setOnPreferenceClickListener(this);
     }
     public void setchangelistener()
     {
@@ -174,6 +176,10 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             helper.cleandb();
             MyLogic.initSharedPreferences();
             Toast.makeText(this,"清空数据完毕,之前数据已经自动备份",Toast.LENGTH_SHORT).show();
+        }
+        else if(preference.getKey().equals("about"))
+        {
+            startActivity(new Intent(this,AboutActivity.class));
         }
         return false;
     }

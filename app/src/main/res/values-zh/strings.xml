@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="_blank"> </string>
+    <string name="aboutTitle">关于</string>
     <string name="advancedSettingTitle">更多设置</string>
     <string name="allSecondsCategoryTitle">手机总使用时间</string>
     <string name="appName">魅时间</string>

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -70,12 +69,7 @@ public class MainActivity extends Activity {
     }
     private void loveformonica()
     {
-        Cursor c=MyTime.getDBHelper().query("select * from timeofapps;");
-        while(c.moveToNext())
-        {
-            Log.e("walsli", "" + c.getInt(0) + " " + c.getInt(1) + " " + c.getString(2) + " " + c.getInt(3));
-        }
-        c.close();
+
 
     }
 
