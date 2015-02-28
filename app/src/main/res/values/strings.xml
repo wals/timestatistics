@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">魅时间</string>
+    <string name="action_settings">天知道这是什么</string>
+    <string name="title_activity_setting">设置</string>
+    <string name="allseconds_title">手机总使用时间</string>
+    <string name="feedback_title">反馈建议</string>
+    <string name="othersettingscreen_title">应用设置</string>
+    <string name="quitbar_title">完全退出时后台服务也将退出，将无法再统计使用时间</string>
+    <string name="quit_title">完全退出</string>
+    <string name="title_activity_about">关于</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="about_title">关于</string>
+    <string name="mstore_title">在应用中心评价</string>
+    <string name="share_title">分享使用时间</string>
+    <string name="countdownscreen_title">每天使用限额</string>
+    <string name="iscountdown_title">开启每日限额功能</string>
+    <string name="countdownnum_title">每日手机使用限额（分钟）</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="isStatistics_title">开启统计功能</string>
+    <string name="isStatistics_summary">开启后主界面SmartBar中会出现新的按钮，点击即可进入统计页面</string>
+    <string name="blank">" "</string>
+    <string name="isiconhide_title">"隐藏魅时间图标"</string>
+    <string name="isiconhide_summary">"长按主屏幕，在下方添加小工具即可添加魅时间小工具，小工具可以代替图标功能，并且显示时间会动态更新。开关本功能需要数秒转换。"</string>
+    <string name="isMagicLock_title">"开启超时锁定手机功能"</string>
+    <string name="isMagicLock_summary">"超过限额后会使用Magic手机锁将手机锁定（每天只会锁定一次）"</string>
+    <string name="AdvancedSetting_title">"高级设置"</string>
+    <string name="aaaaaaaaaaaaaaaa">反馈评价分享关于</string>
+    <string name="bbbbbbbbbbbbbbb">备份还原清除数据</string>
+    <string name="cccccccccccccc">反馈建议评价分享</string>
+    <string name="backup_title">备份</string>
+    <string name="backup_summary">备份文件位于下载文件夹中的timestatistics文件夹中，文件名为魅时间备份.bak\n应用会自动将每次备份内容拷贝一份同文件夹并以当前时间命名</string>
+    <string name="restore_title">还原</string>
+    <string name="restore_summary">请将备份文件置于下载文件夹中的timestatistics文件夹中并命名为魅时间备份.bak</string>
+    <string name="clear_title">清空数据</string>
+    <string name="clear_summary">清空数据会自动备份当前数据</string>
+    <string name="title_activity_blank">BlankActivity</string>
+    <string name="locknum_title">手机锁定时间（分钟）</string>
+    <string name="iscountdown_summary">开启每日限额功能后，当每天使用手机时间达到限额后，将会以通知栏提醒方式提醒放下手机休息，如果开启超时锁定，超过使用限额后收集将会被锁定（需安装Magic手机锁）</string>
+</resources>
