@@ -12,13 +12,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class AboutView extends View implements View.OnClickListener {
+public class AboutView extends View {
 
     String version="";
     DisplayMetrics dm = this.getResources().getDisplayMetrics();
     int screenWidth = dm.widthPixels;
     int screenHeight = dm.heightPixels;
-    int touchAreaNum=0;
+    int password=0;
     RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
     RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
     RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
@@ -28,13 +28,11 @@ public class AboutView extends View implements View.OnClickListener {
         super(context);
         this.version=version;
         postInvalidate();
-        setOnClickListener(this);
     }
     public AboutView(Context context) {
         super(context);
         this.version="2.31FTL";
         postInvalidate();
-        setOnClickListener(this);
     }
     private float getBaseLine(Paint p,RectF rectf)
     {
@@ -73,13 +71,62 @@ public class AboutView extends View implements View.OnClickListener {
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        touchAreaNum=getAreaNum(event);
+        if(event.getAction()==MotionEvent.ACTION_DOWN)
+        {
+            int areaNum=getAreaNum(event);
+            Log.e("walsli",""+areaNum);
+            switch(password)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    if(areaNum==6)
+                    {
+                        password++;
+                    }
+                    else
+                    {
+                        password=0;
+                    }
+                    break;
+                case 3:
+                    if(areaNum==4)
+                    {
+                        password++;
+                    }
+                    else
+                    {
+                        password=0;
+                    }
+                    break;
+                case 4:
+                    if(areaNum==2)
+                    {
+                        password++;
+                    }
+                    else
+                    {
+                        password=0;
+                    }
+                    break;
+                case 5:
+                    if(areaNum==2)
+                    {
+                        Log.e("walsli","win");//TODO 
+                    }
+                    else
+                    {
+                        password=0;
+                    }
+                    break;
+            }
+
+
+
+
+            return true;
+        }
         return false;
-    }
-    @Override
-    public void onClick(View v)
-    {
-        Log.e("walsli",""+touchAreaNum);
     }
     @Override
     protected void onDraw(Canvas canvas) {
