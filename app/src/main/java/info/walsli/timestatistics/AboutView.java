@@ -8,13 +8,17 @@ import android.graphics.Paint.FontMetricsInt;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
-public class AboutView extends View {
+public class AboutView extends View implements View.OnClickListener {
+
     String version="";
     DisplayMetrics dm = this.getResources().getDisplayMetrics();
     int screenWidth = dm.widthPixels;
     int screenHeight = dm.heightPixels;
+    int touchAreaNum=0;
     RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
     RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
     RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
@@ -24,11 +28,39 @@ public class AboutView extends View {
         super(context);
         this.version=version;
         postInvalidate();
+        setOnClickListener(this);
+    }
+    public AboutView(Context context) {
+        super(context);
+        this.version="2.31FTL";
+        postInvalidate();
+        setOnClickListener(this);
     }
     private float getBaseLine(Paint p,RectF rectf)
     {
         FontMetricsInt fontMetrics = p.getFontMetricsInt();
         return rectf.top + (rectf.bottom - rectf.top - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
+    }
+    private int getAreaNum(MotionEvent event)
+    {
+        int areaNum=1;
+        if(event.getY()/screenHeight>0.66)
+        {
+            areaNum+=6;
+        }
+        else if(event.getY()/screenHeight>0.33)
+        {
+            areaNum+=3;
+        }
+        if(event.getX()/screenWidth>0.66)
+        {
+            areaNum+=2;
+        }
+        else if(event.getX()/screenWidth>0.33)
+        {
+            areaNum+=1;
+        }
+        return areaNum;
     }
     private Paint initPaint()
     {
@@ -38,7 +70,17 @@ public class AboutView extends View {
         p.setColor(Color.WHITE);
         return p;
     }
-
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        touchAreaNum=getAreaNum(event);
+        return false;
+    }
+    @Override
+    public void onClick(View v)
+    {
+        Log.e("walsli",""+touchAreaNum);
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -61,7 +103,7 @@ public class AboutView extends View {
 
 
         canvas.drawText("walsli",(float) (screenWidth/2.0),(float) (getBaseLine(p,rectf4)-screenWidth/20.0),p);
-        canvas.drawText("Miss U",(float) (screenWidth/2.0),(float) (getBaseLine(p,rectf4)+screenWidth/20.0),p);
+        canvas.drawText("Live long and prosper",(float) (screenWidth/2.0),(float) (getBaseLine(p,rectf4)+screenWidth/20.0),p);
 
 
     }

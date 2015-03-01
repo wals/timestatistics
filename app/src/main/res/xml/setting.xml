@@ -1,34 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:key="allseconds" android:title="@string/allSecondsCategoryTitle"></PreferenceCategory>
-    <PreferenceScreen android:title="@string/countdownScreenTitle">
-        <CheckBoxPreference android:key="iscountdown" android:title="@string/isCountdownTitle" android:summary="@string/isCountdownSummary"/>
-        <EditTextPreference android:key="countdownnum" android:title="@string/countdownNumTitle" android:defaultValue="120" android:numeric="integer" />
-     </PreferenceScreen>
-    <PreferenceScreen android:title="@string/backupScreenTitle">
-        <Preference android:summary="@string/backupSummary" android:title="@string/backupTitle" android:key="backup"/>
-        <Preference android:summary="@string/restoreSummary" android:title="@string/restoreTitle" android:key="restore"/>
-        <Preference android:summary="@string/clearSummary" android:title="@string/clearTitle" android:key="cleardata"/>
-    </PreferenceScreen>
-    <PreferenceScreen android:title="@string/feedbackTitle">
-        <Preference android:title="@string/feedbackTitle" android:key="feedback" />
-        <Preference android:key="mstore" android:title="@string/mstoreTitle" />
-    </PreferenceScreen>
-    <PreferenceScreen android:title="@string/advancedSettingTitle">
-        <CheckBoxPreference android:key="isiconhide" android:title="@string/isIconHideTitle" android:summary="@string/isIconHideSummary" />
-        
-    </PreferenceScreen>
-    <Preference android:title="@string/aboutTitle" android:key="about" />
-    <PreferenceCategory android:title="@string/quitbarTitle">
-        <Preference android:title="@string/quitTitle" android:key="quit"/>
-        
-    </PreferenceCategory>
-    
-    
-    
-    
-    
-    
-    
-
-</PreferenceScreen>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="settingScreen"/>

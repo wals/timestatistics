@@ -16,11 +16,9 @@ public class AboutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_about);
         findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
         fucksmartbar();
-        Log.e("walsli",String.valueOf(getActionBar().getHeight()));
 
         AboutView aboutView=new AboutView(this,getVersion());
         aboutView.invalidate();

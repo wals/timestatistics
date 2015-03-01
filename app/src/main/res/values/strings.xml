@@ -26,7 +26,7 @@
     <string name="restoreTitle">还原</string>
     <string name="settingActivityTitle">设置</string>
     <string name="title_activity_about">AboutActivity</string>
-    <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_tests">TestActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 

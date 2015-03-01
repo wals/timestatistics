@@ -27,7 +27,7 @@
 
     <style name="myActionBar" parent="@android:style/Widget.DeviceDefault.Light.ActionBar">
         <item name="android:backgroundSplit">@android:color/black</item>
-        <item name="android:windowActionBarOverlay">true</item>
+
     </style>
 
 

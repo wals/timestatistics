@@ -6,10 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -23,6 +20,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import android.text.InputType;
 import android.widget.Toast;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -39,6 +39,22 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
     private DBHelper helper;
     private boolean isrestore=false;
 
+    private PreferenceCategory allsecondsPreferenceCategory;
+    private CheckBoxPreference isCountdounCheckBoxPreference;
+    private EditTextPreference countdownNumEditTextPreference;
+    private PreferenceCategory backupOrRestorePreferenceCategory;
+    private Preference backupPreference;
+    private Preference restorePreference;
+    private Preference resetPreference;
+    private PreferenceCategory feedbackOrMstorePreferenceCategory;
+    private Preference feedbackPreference;
+    private Preference mstorePreference;
+    private PreferenceCategory advancedSettingPreferenceCategory;
+    private CheckBoxPreference hideIconCheckBoxPreference;
+    private PreferenceCategory blankPreferenceCategory;
+    private Preference aboutPreference;
+    private Preference quitPreference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,31 +68,113 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         addPreferencesFromResource(R.xml.setting);
         mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
         editor = mySharedPreferences.edit();
-        setiscountdown();
-        setclicklistener();
-        setchangelistener();
-        setallsecondssummary();
-
         helper = new DBHelper(getApplicationContext());
 
+        initPreferenceScreen();
+        showPreferences(mySharedPreferences.getBoolean("iscountdown",false));
     }
-
-    public void setiscountdown()
+    private void initPreferenceScreen()
     {
-        CheckBoxPreference iscountdown=(CheckBoxPreference) findPreference("iscountdown");
-        EditTextPreference countdownnum=(EditTextPreference) findPreference("countdownnum");
-        countdownnum.setSummary(mySharedPreferences.getString("countdownnum","120"));
-        if(iscountdown.isChecked())
-        {
-            countdownnum.setEnabled(true);
-        }
-        else
-        {
-            countdownnum.setEnabled(false);
-        }
+        allsecondsPreferenceCategory=new PreferenceCategory(this);
+        isCountdounCheckBoxPreference=new CheckBoxPreference(this);
+        countdownNumEditTextPreference=new EditTextPreference(this);
+        backupPreference=new Preference(this);
+        restorePreference=new Preference(this);
+        resetPreference=new Preference(this);
+        feedbackPreference=new Preference(this);
+        mstorePreference=new Preference(this);
+        hideIconCheckBoxPreference =new CheckBoxPreference(this);
+        aboutPreference=new Preference(this);
+        quitPreference=new Preference(this);
+        backupOrRestorePreferenceCategory=new PreferenceCategory(this);
+        feedbackOrMstorePreferenceCategory=new PreferenceCategory(this);
+        advancedSettingPreferenceCategory=new PreferenceCategory(this);
+        blankPreferenceCategory=new PreferenceCategory(this);
 
+        allsecondsPreferenceCategory.setKey("allseconds");
+        allsecondsPreferenceCategory.setTitle(getAllSecondsTitle());
+        allsecondsPreferenceCategory.setOrder(0);
+        isCountdounCheckBoxPreference.setKey("iscountdown");
+        isCountdounCheckBoxPreference.setTitle("开启每日限额功能");
+        isCountdounCheckBoxPreference.setSummary("开启每日限额功能后，每天使用手机时间达到限额时，将会以通知栏提醒方式提醒放下手机休息");
+        isCountdounCheckBoxPreference.setOnPreferenceChangeListener(this);
+        isCountdounCheckBoxPreference.setOrder(1);
+        countdownNumEditTextPreference.setKey("countdownnum");
+        countdownNumEditTextPreference.setTitle("每日手机使用限额(分钟)");
+        countdownNumEditTextPreference.setSummary(mySharedPreferences.getString("countdownnum", "120"));
+        countdownNumEditTextPreference.setDefaultValue("120");
+        countdownNumEditTextPreference.getEditText().setText("每日手机使用限额(分钟)");
+        countdownNumEditTextPreference.getEditText().setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        countdownNumEditTextPreference.setOnPreferenceChangeListener(this);
+        countdownNumEditTextPreference.setOrder(2);
+        backupOrRestorePreferenceCategory.setTitle("备份还原");
+        backupOrRestorePreferenceCategory.setOrder(3);
+        backupPreference.setKey("backup");
+        backupPreference.setTitle("备份");
+        backupPreference.setSummary("备份文件位于下载文件夹中的timestatistics文件夹中，文件名为魅时间备份.bak\n应用会自动将每次备份内容拷贝一份同文件夹并以当前时间命名");
+        backupPreference.setOnPreferenceClickListener(this);
+        backupPreference.setOrder(4);
+        restorePreference.setKey("restore");
+        restorePreference.setTitle("还原");
+        restorePreference.setOnPreferenceClickListener(this);
+        restorePreference.setOrder(5);
+        feedbackOrMstorePreferenceCategory.setTitle("反馈评价");
+        feedbackOrMstorePreferenceCategory.setOrder(6);
+        feedbackPreference.setKey("feedback");
+        feedbackPreference.setTitle("反馈建议");
+        feedbackPreference.setOnPreferenceClickListener(this);
+        feedbackPreference.setOrder(7);
+        mstorePreference.setKey("mstore");
+        mstorePreference.setTitle("在应用中心评价");
+        mstorePreference.setOnPreferenceClickListener(this);
+        mstorePreference.setOrder(8);
+        advancedSettingPreferenceCategory.setTitle("高级设置");
+        advancedSettingPreferenceCategory.setOrder(9);
+        hideIconCheckBoxPreference.setKey("hideIcon");
+        hideIconCheckBoxPreference.setTitle("隐藏应用图标");
+        hideIconCheckBoxPreference.setSummary("长按主屏幕，在下方添加小工具即可添加魅时间小工具，小工具可以代替图标功能，并且显示时间会动态更新");//TODO add alert
+        hideIconCheckBoxPreference.setOnPreferenceChangeListener(this);
+        hideIconCheckBoxPreference.setOrder(10);
+        resetPreference.setKey("reset");
+        resetPreference.setTitle("清除数据");
+        resetPreference.setSummary("清空数据时会自动备份当前数据");
+        resetPreference.setOnPreferenceClickListener(this);
+        resetPreference.setOrder(11);
+        blankPreferenceCategory.setOrder(12);
+        aboutPreference.setKey("about");
+        aboutPreference.setTitle("关于");
+        aboutPreference.setOnPreferenceClickListener(this);
+        aboutPreference.setOrder(13);
+        quitPreference.setKey("quit");
+        quitPreference.setTitle("完全退出");//TODO add alert
+        quitPreference.setOnPreferenceClickListener(this);
+        quitPreference.setOrder(14);
     }
-    public void setallsecondssummary()
+    private void showPreferences(boolean iscountdown)
+    {
+        PreferenceScreen screen = getPreferenceScreen();
+        screen.removeAll();
+        screen.setOrderingAsAdded(true);
+        screen.addPreference(allsecondsPreferenceCategory);
+        screen.addPreference(isCountdounCheckBoxPreference);
+        if(iscountdown)
+        {
+            screen.addPreference(countdownNumEditTextPreference);
+        }
+        screen.addPreference(backupOrRestorePreferenceCategory);
+        screen.addPreference(backupPreference);
+        screen.addPreference(restorePreference);
+        screen.addPreference(feedbackOrMstorePreferenceCategory);
+        screen.addPreference(feedbackPreference);
+        screen.addPreference(mstorePreference);
+        screen.addPreference(advancedSettingPreferenceCategory);
+        screen.addPreference(hideIconCheckBoxPreference);
+        screen.addPreference(resetPreference);
+        screen.addPreference(blankPreferenceCategory);
+        screen.addPreference(aboutPreference);
+        screen.addPreference(quitPreference);
+    }
+    public String getAllSecondsTitle()
     {
         long allsecondspass=mySharedPreferences.getLong("allseconds", 0);
         String allseconds_title="手机总使用时间:";
@@ -98,33 +196,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         {
             allseconds_title+=String.valueOf(allsecondspass/60)+"分钟";
         }
-        findPreference("allseconds").setTitle(allseconds_title);
-    }
-    public void setclicklistener()
-    {
-        Preference feedback=findPreference("feedback");
-        feedback.setOnPreferenceClickListener(this);
-        Preference quit=findPreference("quit");
-        quit.setOnPreferenceClickListener(this);
-        Preference mstore=findPreference("mstore");
-        mstore.setOnPreferenceClickListener(this);
-        Preference backup=findPreference("backup");
-        backup.setOnPreferenceClickListener(this);
-        Preference restore=findPreference("restore");
-        restore.setOnPreferenceClickListener(this);
-        Preference cleardata=findPreference("cleardata");
-        cleardata.setOnPreferenceClickListener(this);
-        Preference about=findPreference("about");
-        about.setOnPreferenceClickListener(this);
-    }
-    public void setchangelistener()
-    {
-        CheckBoxPreference isCountDown=(CheckBoxPreference) findPreference("iscountdown");
-        isCountDown.setOnPreferenceChangeListener(this);
-        EditTextPreference countDownNum=(EditTextPreference) findPreference("countdownnum");
-        countDownNum.setOnPreferenceChangeListener(this);
-        CheckBoxPreference isIconHide=(CheckBoxPreference) findPreference("isiconhide");
-        isIconHide.setOnPreferenceChangeListener(this);
+        return allseconds_title;
     }
 
     @Override
@@ -132,7 +204,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         if(preference.getKey().equals("feedback"))
         {
             Intent newMail=new Intent(Intent.ACTION_SENDTO);
-            newMail.setData(Uri.parse("mailto:925378224@qq.com"));
+            newMail.setData(Uri.parse("mailto:meitime666422@qq.com"));
             newMail.putExtra(Intent.EXTRA_SUBJECT, "魅时间应用反馈");
             newMail.putExtra(Intent.EXTRA_TEXT, "");
             startActivity(newMail);
@@ -157,8 +229,6 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             editor.putBoolean("reboot",false);
             editor.apply();
             this.finish();
-
-
         }
         else if(preference.getKey().equals("backup"))
         {
@@ -170,7 +240,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             thread.start();
             Toast.makeText(this,"正在 后台还原数据，请稍后，根据数据量大小还原过程可能持续几分钟，还原完毕后时间显示将恢复正常",Toast.LENGTH_LONG).show();
         }
-        else if(preference.getKey().equals("cleardata"))
+        else if(preference.getKey().equals("reset"))
         {
             backupData();
             helper.cleandb();
@@ -187,26 +257,15 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if(preference.getKey().equals("iscountdown"))
         {
-            CheckBoxPreference iscountdown=(CheckBoxPreference) findPreference("iscountdown");
-            EditTextPreference countdownnum=(EditTextPreference) findPreference("countdownnum");
-            if(!iscountdown.isChecked())
-            {
-                countdownnum.setEnabled(true);
-
-            }
-            else
-            {
-                countdownnum.setEnabled(false);
-            }
+            showPreferences(!mySharedPreferences.getBoolean("iscountdown",false));
             return true;
         }
 
-        else if(preference.getKey().equals("isiconhide"))
+        else if(preference.getKey().equals("hideIcon"))
         {
-            CheckBoxPreference isiconhide=(CheckBoxPreference) findPreference("isiconhide");
             PackageManager packageManager = getPackageManager();
             ComponentName componentName = new ComponentName("info.walsli.timestatistics","info.walsli.timestatistics.BlankActivity");
-            if(isiconhide.isChecked())
+            if(hideIconCheckBoxPreference.isChecked())
             {
                 packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
                         PackageManager.DONT_KILL_APP);
@@ -221,8 +280,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         }
         else if(preference.getKey().equals("countdownnum"))
         {
-            EditTextPreference countdownnum=(EditTextPreference) findPreference("countdownnum");
-            countdownnum.setSummary((CharSequence) newValue);
+            countdownNumEditTextPreference.setSummary((CharSequence) newValue);
             return true;
         }
         return false;
