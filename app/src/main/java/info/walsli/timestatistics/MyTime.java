@@ -15,7 +15,7 @@ import android.database.Cursor;;
 public class MyTime{
     private static SharedPreferences mySharedPreferences=MyApplication.getInstance().getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);;
     private static SharedPreferences.Editor editor= mySharedPreferences.edit();
-    private static DBHelper helper= new DBHelper(MyApplication.getInstance());
+    private static DBHelper helper= MyApplication.getDBHelper();
 
     public static DBHelper getDBHelper()
     {

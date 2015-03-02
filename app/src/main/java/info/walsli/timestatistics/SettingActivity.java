@@ -37,7 +37,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
     private SharedPreferences mySharedPreferences;
     private SharedPreferences.Editor editor;
     private DBHelper helper;
-    private boolean isrestore=false;
+    private static Handler mHandler;
 
     private PreferenceCategory allsecondsPreferenceCategory;
     private CheckBoxPreference isCountdounCheckBoxPreference;
@@ -68,7 +68,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         addPreferencesFromResource(R.xml.setting);
         mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
         editor = mySharedPreferences.edit();
-        helper = new DBHelper(getApplicationContext());
+        helper =MyApplication.getDBHelper();
 
         initPreferenceScreen();
         showPreferences(mySharedPreferences.getBoolean("iscountdown",false));
@@ -236,16 +236,32 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         }
         else if(preference.getKey().equals("restore"))
         {
-            Thread thread=new Thread(new ProgressRunable());
-            thread.start();
-            Toast.makeText(this,"正在 后台还原数据，请稍后，根据数据量大小还原过程可能持续几分钟，还原完毕后时间显示将恢复正常",Toast.LENGTH_LONG).show();
+
+            if(DBHelper.lock)
+            {
+                Toast.makeText(getApplicationContext(), "数据库忙，请稍后", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Thread thread=new Thread(new ProgressRunable());
+                thread.start();
+                Toast.makeText(this,"正在 后台还原数据，请稍后，根据数据量大小还原过程可能持续几分钟，还原完毕后时间显示将恢复正常",Toast.LENGTH_LONG).show();
+            }
+
         }
         else if(preference.getKey().equals("reset"))
         {
-            backupData();
-            helper.cleandb();
-            MyLogic.initSharedPreferences();
-            Toast.makeText(this,"清空数据完毕,之前数据已经自动备份",Toast.LENGTH_SHORT).show();
+            if(DBHelper.lock)
+            {
+                Toast.makeText(this,"数据库忙，请稍候",Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                backupData();
+                helper.cleandb();
+                MyLogic.initSharedPreferences();
+                Toast.makeText(this,"清空数据完毕,之前数据已经自动备份",Toast.LENGTH_SHORT).show();
+            }
         }
         else if(preference.getKey().equals("about"))
         {
@@ -287,92 +303,134 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
     }
     public void backupData()
     {
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-        String date = sDateFormat.format(new java.util.Date());
-        MyTime.processTime(date);
-        MyTime.setBeginTime(date);
-        String folderstr = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/";
-        File folder = new File(folderstr);
-        if(!folder.exists())
+        if(DBHelper.lock)
         {
-            folder.mkdir();
+            Toast.makeText(this,"数据库忙，请稍候",Toast.LENGTH_SHORT).show();
         }
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份.bak";
-        File saveFile = new File(path);
-        String pathbackup = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份"+date+".bak";
-        File saveFilebackup = new File(pathbackup);
-        if(saveFile.exists())
+        else
         {
-            saveFile.delete();
-        }
-        try
-        {
-            BufferedWriter output = new BufferedWriter(new FileWriter(saveFile,true));
-            BufferedWriter outputbackup = new BufferedWriter(new FileWriter(saveFilebackup,true));
-            Cursor c=helper.query("select * from timeinfo");
-            while(c.moveToNext())
-            {
-                output.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
-                outputbackup.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
-            }
-            output.flush();
-            output.close();
-            outputbackup.flush();
-            outputbackup.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(this,"备份成功！",Toast.LENGTH_SHORT).show();
-    }
-    Handler mHandler=new Handler(){
-        public void handleMessage(Message message)
-        {
-            switch(message.what)
-            {
-                case 1:
-                    Toast.makeText(getApplicationContext(), "已经在还原数据过程在，请稍后", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2:
-                    Toast.makeText(getApplicationContext(), "未检测到备份文件，请将备份文件置于下载文件夹并重命名为魅时间备份.bak", Toast.LENGTH_SHORT).show();
-                    break;
-                case 3:
-                    Toast.makeText(getApplicationContext(), "还原完毕", Toast.LENGTH_SHORT).show();
-                    break;
-            }
+            DBHelper.lock=true;
 
+            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+            String date = sDateFormat.format(new java.util.Date());
+            MyTime.processTime(date);
+            MyTime.setBeginTime(date);
+            String folderstr = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/";
+            File folder = new File(folderstr);
+            if(!folder.exists())
+            {
+                folder.mkdir();
+            }
+            String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份.bak";
+            File saveFile = new File(path);
+            String pathbackup = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份"+date+".bak";
+            File saveFilebackup = new File(pathbackup);
+            if(saveFile.exists())
+            {
+                saveFile.delete();
+            }
+            try
+            {
+                BufferedWriter output = new BufferedWriter(new FileWriter(saveFile,true));
+                BufferedWriter outputbackup = new BufferedWriter(new FileWriter(saveFilebackup,true));
+                Cursor c=helper.query("select * from timeinfo");
+                while(c.moveToNext())
+                {
+                    output.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
+                    outputbackup.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
+                }
+                output.flush();
+                output.close();
+                outputbackup.flush();
+                outputbackup.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this,"备份成功！",Toast.LENGTH_SHORT).show();
+
+            DBHelper.lock=false;
         }
-    };
+
+    }
+    @Override
+    public void onResume()
+    {
+        mHandler=new Handler(){
+
+            public void handleMessage(Message message)
+            {
+                switch(message.what)
+                {
+                    case 1:
+                        Toast.makeText(getApplicationContext(), "数据库忙，请稍后", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        Toast.makeText(getApplicationContext(), "未检测到备份文件，请将备份文件置于下载文件夹并重命名为魅时间备份.bak", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 3:
+                        Toast.makeText(getApplicationContext(), "还原完毕.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 4:
+                        restorePreference.setSummary("数据还原完毕");
+                        Intent intent = new Intent();
+                        intent.setAction("info.walsli.timestatistics.MainActivityRestartReceiver");
+                        SettingActivity.this.sendBroadcast(intent);
+
+                        break;
+                    default:
+                        restorePreference.setSummary("数据还原中，已还原"+ (message.what-100) +"%");
+                        showPreferences(mySharedPreferences.getBoolean("iscountdown",false));
+
+                        break;
+                }
+
+            }
+        };
+        super.onResume();
+    }
     class ProgressRunable implements Runnable
     {
         @Override
         public void run() {
-            Message message=new Message();
-            if(isrestore)
+            if(DBHelper.lock)
             {
-                message.what=1;
+                mHandler.sendEmptyMessage(1);
             }
             else
             {
-                isrestore=true;
+                DBHelper.lock=true;
                 helper.cleandb();
                 String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份.bak";
                 File file = new File(path);
                 if(!file.exists())
                 {
-                    message.what=2;
+                    mHandler.sendEmptyMessage(2);
                 }
                 else
                 {
                     BufferedReader reader = null;
                     try
                     {
+                        BufferedReader countReader=new BufferedReader(new FileReader(file));
+                        int count=0;
+                        while(countReader.readLine()!=null)
+                        {
+                            count++;
+                        }
+                        countReader.close();
 
                         reader = new BufferedReader(new FileReader(file));
                         String tempString;
+                        int tempInteger=0;
                         while ((tempString = reader.readLine()) != null)
                         {
+                            if(count>=90&&tempInteger%(count/90)==0)
+                            {
+                                mHandler.sendEmptyMessage(100 + tempInteger / (count / 90));
+                            }
                             String ints[]=tempString.split(" ");
                             helper.insertIntoTimeinfo(Integer.parseInt(ints[0]), Integer.parseInt(ints[1]), Integer.parseInt(ints[2]));
+                            tempInteger++;
                         }
                         reader.close();
                         SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
@@ -384,6 +442,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
                         for(int i=1;i<=MyTime.getDayNum();i++)
                         {
                             helper.settlement(i);
+                            mHandler.sendEmptyMessage((int) (190+(float)i/MyTime.getDayNum()*10));
                         }
                         Cursor c=helper.query("select * from timeofdays where datenum="+String.valueOf(MyTime.getDayNum()));
                         while(c.moveToNext())
@@ -398,6 +457,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
                         }
                         editor.putLong("allseconds", allseconds);
                         editor.apply();
+                        mHandler.sendEmptyMessage(4);
                     }
                     catch (IOException e)
                     {
@@ -417,10 +477,9 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
                             }
                         }
                     }
-                    message.what=3;
+                    mHandler.sendEmptyMessage(3);
                 }
-                isrestore=false;
-                mHandler.sendMessage(message);
+                DBHelper.lock=false;
             }
         }
     }

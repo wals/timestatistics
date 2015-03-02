@@ -96,13 +96,20 @@ public class MainActivity extends Activity {
     @Override
     public void onResume()
     {
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-        String date = sDateFormat.format(new java.util.Date());
-        MyTime.processTime(date);
-        MyTime.setBeginTime(date);
-        inFornt=true;
-        thread=new Thread(new ProgressRunable());
-        thread.start();
+        if(!DBHelper.lock)
+        {
+            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+            String date = sDateFormat.format(new java.util.Date());
+            MyTime.processTime(date);
+            MyTime.setBeginTime(date);
+            inFornt=true;
+            thread=new Thread(new ProgressRunable());
+            thread.start();
+        }
+        else
+        {
+            clockview.refreshclock(19212,0,-1);
+        }
         super.onResume();
     }
 

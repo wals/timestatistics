@@ -19,6 +19,7 @@ public class MyApplication extends Application
     private static SharedPreferences mySharedPreferences;
     private static SharedPreferences.Editor editor;
     private static HashMap<String , Integer> appSecondsPerDay = new HashMap<String , Integer>();
+    private static DBHelper dbhelper;
 
     @Override
     public void onCreate()
@@ -29,6 +30,11 @@ public class MyApplication extends Application
         mBgBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.backgroundsmall);
         mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
         editor = mySharedPreferences.edit();
+        dbhelper=new DBHelper(this);
+    }
+    public static DBHelper getDBHelper()
+    {
+        return dbhelper;
     }
     public static HashMap<String, Integer> getAppSecondsPerDay()
     {

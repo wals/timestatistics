@@ -15,7 +15,6 @@ public class BootService extends BroadcastReceiver{
         {
             Intent serviceIntent = new Intent(context, ScreenListenerService.class);
             context.startService(serviceIntent);
-            //startService(new Intent(getBaseContext(),screenlistenerservice.class));
         }
     }
 

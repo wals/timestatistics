@@ -36,20 +36,19 @@ public class StatisticsActivity extends Activity {
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor editor;
     IntentFilter filter;
-    StatisticsActivityFinishReceiver receiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_statistics);
         findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
-        helper = new DBHelper(getApplicationContext());
+        helper = MyApplication.getDBHelper();
         viewinit();
         fucksmartbar();
 
-        receiver = new StatisticsActivityFinishReceiver();
-        filter = new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction("info.walsli.timestatistics.StatisticsActivityFinishReceiver");
+        filter.addAction("info.walsli.timestatistics.StatisticsActivityRestartReceiver");
         registerReceiver(receiver, filter);
 
         mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
@@ -106,54 +105,68 @@ public class StatisticsActivity extends Activity {
     }
     private void viewinit()
     {
-        helper.settlement(getGapCount());
+        if(DBHelper.lock)
+        {
+            ClockView clockView=new ClockView(this,19200);
+            clockView.invalidate();
+            clockView.layout(0, 0, 0, 0);
+            LayoutParams lp=new LayoutParams(0);
+            this.addContentView(clockView, lp);
+            clockView.refreshclock(19212,0,-1);
+        }
+        else
+        {
+            helper.settlement(getGapCount());
 
-        Cursor c=helper.query("select * from timeofdays order by datenum asc;");
-        int a[][]=new int[c.getCount()][2];
-        int i=0;
-        while(c.moveToNext())
-        {
-            a[i][0]=c.getInt(1);
-            a[i][1]=c.getInt(2);
-            i++;
-        }
-        int b[][]=new int[10][2];
-        if(c.getCount()<10)
-        {
-            int startmark=a[0][0]-10+c.getCount();
-            for(int k=0;k<10-c.getCount();k++)
+            Cursor c=helper.query("select * from timeofdays order by datenum asc;");
+            int a[][]=new int[c.getCount()][2];
+            int i=0;
+            while(c.moveToNext())
             {
-                b[k][0]=startmark;
-                b[k][1]=0;
-                startmark++;
+                a[i][0]=c.getInt(1);
+                a[i][1]=c.getInt(2);
+                i++;
             }
-            for(int k=10-c.getCount();k<10;k++)
+            int b[][]=new int[10][2];
+            if(c.getCount()<10)
             {
-                b[k][0]=a[k+c.getCount()-10][0];
-                b[k][1]=a[k+c.getCount()-10][1];
+                int startmark=a[0][0]-10+c.getCount();
+                for(int k=0;k<10-c.getCount();k++)
+                {
+                    b[k][0]=startmark;
+                    b[k][1]=0;
+                    startmark++;
+                }
+                for(int k=10-c.getCount();k<10;k++)
+                {
+                    b[k][0]=a[k+c.getCount()-10][0];
+                    b[k][1]=a[k+c.getCount()-10][1];
+                }
             }
-        }
-        else if(c.getCount()==10)
-        {
-            for(int k=0;k<10;k++)
+            else if(c.getCount()==10)
             {
-                b[k][0]=a[k][0];
-                b[k][1]=a[k][1];
+                for(int k=0;k<10;k++)
+                {
+                    b[k][0]=a[k][0];
+                    b[k][1]=a[k][1];
+                }
             }
-        }
-        else if(c.getCount()>10)
-        {
-            for(int k=0;k<10;k++)
+            else if(c.getCount()>10)
             {
-                b[k][0]=a[c.getCount()-10+k][0];
-                b[k][1]=a[c.getCount()-10+k][1];
+                for(int k=0;k<10;k++)
+                {
+                    b[k][0]=a[c.getCount()-10+k][0];
+                    b[k][1]=a[c.getCount()-10+k][1];
+                }
             }
+            this.canvasview=new StatisticsView(this,b);
+            canvasview.invalidate();
+            canvasview.layout(0, 0, 0, 0);
+            LayoutParams lp=new LayoutParams(0);
+            this.addContentView(canvasview, lp);
         }
-        this.canvasview=new StatisticsView(this,b);
-        canvasview.invalidate();
-        canvasview.layout(0, 0, 0, 0);
-        LayoutParams lp=new LayoutParams(0);
-        this.addContentView(canvasview, lp);
+
+
     }
 
     @Override
@@ -185,12 +198,20 @@ public class StatisticsActivity extends Activity {
     }
 
 
-    private class StatisticsActivityFinishReceiver extends BroadcastReceiver {
-
+    public BroadcastReceiver receiver = new BroadcastReceiver()
+    {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            StatisticsActivity.this.finish();
+        public void onReceive(final Context context, final Intent intent)
+        {
+            if ("info.walsli.timestatistics.StatisticsFinishReceiver".equals(intent.getAction()))
+            {
+                StatisticsActivity.this.finish();
+            }
+            else if ("info.walsli.timestatistics.StatisticsActivityRestartReceiver".equals(intent.getAction()))
+            {
+                StatisticsActivity.this.recreate();
+            }
         }
-    }
+    };
 
 }

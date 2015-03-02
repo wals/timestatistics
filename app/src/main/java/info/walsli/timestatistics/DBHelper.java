@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
-
+    public static boolean lock=false;
     public DBHelper(Context c) {
         super(c, "time.db", null, 2);
     }
@@ -25,9 +25,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public void cleandb()
     {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("delete from timeofdays");
-        db.execSQL("delete from timeinfo");
-        db.execSQL("delete from timeofapps");
+        Cursor c=query("select name from sqlite_master where type='table';");
+        while(c.moveToNext())
+        {
+            db.execSQL("delete from "+c.getString(0));
+        }
     }
     public void settlement(int a)
     {

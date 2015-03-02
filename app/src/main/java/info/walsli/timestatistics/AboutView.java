@@ -112,7 +112,8 @@ public class AboutView extends View {
                 case 5:
                     if(areaNum==2)
                     {
-                        Log.e("walsli","win");//TODO 
+                        lovetomonica();//TODO
+                        password=0;
                     }
                     else
                     {
@@ -120,13 +121,13 @@ public class AboutView extends View {
                     }
                     break;
             }
-
-
-
-
             return true;
         }
         return false;
+    }
+    private void lovetomonica()
+    {
+        Log.e("walsli","win");
     }
     @Override
     protected void onDraw(Canvas canvas) {

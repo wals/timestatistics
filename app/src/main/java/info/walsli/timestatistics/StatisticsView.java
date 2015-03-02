@@ -28,7 +28,7 @@ public class StatisticsView extends View {
         p.setStyle(Paint.Style.FILL);
         p.setTextSize(30);
         p.setSubpixelText(true);
-        helper = new DBHelper(MyApplication.getInstance());
+        helper = MyApplication.getDBHelper();
         postInvalidate();
     }
     @Override

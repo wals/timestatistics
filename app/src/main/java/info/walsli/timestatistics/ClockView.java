@@ -85,7 +85,14 @@ public class ClockView extends View {
         canvas.drawText(screenon_frequency_string,(float) (screenWidth/2.0),getBaseLine(p,rectf3),p);
 
         String saying;
-        if(seconds/3600>=2)
+        if(hour==-1)
+        {
+            saying="数据还原中，本页面时间暂停";
+            canvas.drawText(saying,(float) (screenWidth/2.0),(float) (getBaseLine(p,rectf4)-screenWidth/20.0),p);
+            saying="还原完毕后恢复正常";
+            canvas.drawText(saying,(float) (screenWidth/2.0),getBaseLine(p,rectf4),p);
+        }
+        else if(seconds/3600>=2)
         {
             saying="你已经使用超过两个小时的时间，影响视力";
             canvas.drawText(saying,(float) (screenWidth/2.0),(float) (getBaseLine(p,rectf4)-screenWidth/20.0),p);
