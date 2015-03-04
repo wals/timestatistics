@@ -4,20 +4,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.FontMetricsInt;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.util.DisplayMetrics;
-import android.view.View;
 
-public class ClockView extends View {
+public class ClockView extends BaseView {
     private long seconds=0;
     private int hour=0;
     private int screenon_frequency=1;
 
-    DisplayMetrics dm = this.getResources().getDisplayMetrics();
-    int screenWidth = dm.widthPixels;
-    int screenHeight = dm.heightPixels;
     RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
     RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
     RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
@@ -28,11 +22,7 @@ public class ClockView extends View {
         this.seconds=seconds;
         postInvalidate();
     }
-    private float getBaseLine(Paint p,RectF rectf)
-    {
-        FontMetricsInt fontMetrics = p.getFontMetricsInt();
-        return rectf.top + (rectf.bottom - rectf.top - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-    }
+
     private Paint initPaint()
     {
         Paint p = new Paint();

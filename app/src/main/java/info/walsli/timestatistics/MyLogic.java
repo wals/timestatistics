@@ -1,17 +1,26 @@
 package info.walsli.timestatistics;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class MyLogic{
-    private static SharedPreferences mySharedPreferences=MyApplication.getInstance().getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);;
-    private static SharedPreferences.Editor editor =mySharedPreferences.edit();;
+    private static SharedPreferences mySharedPreferences=MyApplication.getInstance().getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
+    private static SharedPreferences.Editor editor =mySharedPreferences.edit();
+    private static String TAG="walsli";
 
+    public static String BLANKACTIVITY_FINISH="info.walsli.timestatistics.BlankActivityFinishReceiver";
+    public static String packageName="info.walsli.timestatistics";
+
+    public static void log(String s)
+    {
+        Log.e(TAG,s);
+    }
     public static boolean isCallCountDown(long minutes)
     {
         return mySharedPreferences.getBoolean("iscountdown",false)&&!mySharedPreferences.getBoolean("todayremind",false)&&Long.parseLong(mySharedPreferences.getString("countdownnum","0"))<=minutes;

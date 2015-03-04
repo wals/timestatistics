@@ -1,7 +1,5 @@
 package info.walsli.timestatistics;
 
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -10,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+
+import java.util.HashMap;
 
 public class MyApplication extends Application
 {

@@ -20,9 +20,7 @@
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:actionBarStyle">@style/myActionBar</item>
-        <item name="android:windowTranslucentStatus">true</item>
-    	<item name="android:fitsSystemWindows">true</item>
-    	<item name="android:windowContentOverlay">@null</item> 
+
     </style>
 
     <style name="myActionBar" parent="@android:style/Widget.DeviceDefault.Light.ActionBar">

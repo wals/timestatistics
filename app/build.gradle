@@ -1,28 +1,64 @@
 apply plugin: 'com.android.application'
 
+def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("GMT+08:00"))
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
 
     defaultConfig {
         applicationId "info.walsli.timestatistics"
-        minSdkVersion 19
+        minSdkVersion 16
         targetSdkVersion 21
         versionCode 7
         versionName "2.31FTL"
     }
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
+    signingConfigs {
+        releaseConfig
+                {
+                    storeFile file("timestatistics-key")
+                    storePassword "walsli728238"
+                    keyAlias "walsli"
+                    keyPassword "walsli728238"
+                }
 
-dependencies {
-    provided files('assets')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':systembartint-1.0.4')
-    compile 'com.android.support:appcompat-v7:21.0.2'
-    compile 'com.android.support:support-v4:21.0.2'
+    }
+    buildTypes {
+        debug{
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            versionNameSuffix "-debug"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.releaseConfig
+        }
+        release {
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
+
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def file = output.outputFile
+                    output.outputFile = new File(file.parent, file.name.replace("app-release.apk", "timestatistics-" + defaultConfig.versionName +"-"+releaseTime()+ ".apk"))
+                }
+            }
+
+        }
+
+
+    }
+
+    dependencies {
+        provided files('assets')
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+        compile project(':systembartint-1.0.4')
+        compile 'com.android.support:appcompat-v7:21.0.2'
+        compile 'com.android.support:support-v4:21.0.2'
+    }
 }

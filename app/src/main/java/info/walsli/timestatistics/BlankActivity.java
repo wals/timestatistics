@@ -17,7 +17,7 @@ public class BlankActivity extends Activity {
 
         receiver = new BlankActivityFinishReceiver();
         filter = new IntentFilter();
-        filter.addAction("info.walsli.timestatistics.BlankActivityFinishReceiver");
+        filter.addAction(MyLogic.BLANKACTIVITY_FINISH);
         registerReceiver(receiver, filter);
 
         startActivity(new Intent(this,MainActivity.class));

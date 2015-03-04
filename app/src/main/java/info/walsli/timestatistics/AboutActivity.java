@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,7 +19,7 @@ public class AboutActivity extends Activity {
         findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
         fucksmartbar();
 
-        AboutView aboutView=new AboutView(this,getVersion());
+        AboutView aboutView=new AboutView(getApplicationContext(),getVersion());
         aboutView.invalidate();
         aboutView.layout(0, 0, 0, 0);
         ActionBar.LayoutParams lp=new ActionBar.LayoutParams(0);
@@ -30,8 +29,7 @@ public class AboutActivity extends Activity {
         try {
             PackageManager manager = this.getPackageManager();
             PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-            String version = info.versionName;
-            return version;
+            return info.versionName;
         } catch (Exception e) {
             e.printStackTrace();
         }

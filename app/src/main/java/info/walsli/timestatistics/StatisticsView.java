@@ -1,7 +1,5 @@
 package info.walsli.timestatistics;
 
-import java.util.Date;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
@@ -11,6 +9,8 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.Date;
 
 public class StatisticsView extends View {
     Paint p=new Paint();

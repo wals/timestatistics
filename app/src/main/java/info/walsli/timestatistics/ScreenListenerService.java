@@ -21,6 +21,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.TypedValue;
 import android.widget.RemoteViews;
+
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
@@ -134,7 +135,7 @@ public class ScreenListenerService extends Service {
         {
             updateView.setTextViewTextSize(R.id.text_02, TypedValue.COMPLEX_UNIT_PX,35);
 
-            Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.backgroundofwidgetmx3).copy(Bitmap.Config.ARGB_8888, true); ;
+            Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.backgroundofwidgetmx2).copy(Bitmap.Config.ARGB_8888, true); ;
             Canvas canvas = new Canvas(bitmap);
             Paint p=new Paint();
             p.setAntiAlias(true);

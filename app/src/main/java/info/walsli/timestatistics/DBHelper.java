@@ -8,9 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static boolean lock=false;
+    private SQLiteDatabase db = getWritableDatabase();
     public DBHelper(Context c) {
         super(c, "time.db", null, 2);
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table timeinfo(_id integer primary key autoincrement,datenum integer,opentime integer,closetime integer)");

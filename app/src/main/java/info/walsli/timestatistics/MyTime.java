@@ -1,5 +1,9 @@
 package info.walsli.timestatistics;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,9 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.database.Cursor;;
+;
 
 public class MyTime{
     private static SharedPreferences mySharedPreferences=MyApplication.getInstance().getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);;
@@ -28,7 +30,7 @@ public class MyTime{
     }
     public static void increaseScreenonFrequency()
     {
-        editor.putInt("screenon_frgequency",getScreenonFrequency()+1);
+        editor.putInt("screenon_frequency",getScreenonFrequency()+1);
         editor.apply();
     }
     public static int getScreenonFrequency()

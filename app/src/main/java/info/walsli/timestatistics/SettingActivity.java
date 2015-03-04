@@ -1,13 +1,5 @@
 package info.walsli.timestatistics;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -20,18 +12,26 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceScreen;
-import android.text.InputType;
-import android.widget.Toast;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import android.text.InputType;
+import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 public class SettingActivity extends PreferenceActivity implements OnPreferenceChangeListener,OnPreferenceClickListener{
     private SharedPreferences mySharedPreferences;
