@@ -1,8 +1,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/activity_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="info.walsli.timestatistics.AboutActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame" >
+    <info.walsli.timestatistics.AboutView
+        android:layout_width="fill_parent"
+        android:id="@+id/aboutview"
+        android:layout_height="fill_parent" />
+</FrameLayout>
 

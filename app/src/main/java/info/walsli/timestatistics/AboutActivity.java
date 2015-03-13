@@ -1,6 +1,5 @@
 package info.walsli.timestatistics;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -16,14 +15,9 @@ public class AboutActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
+        findViewById(R.id.activity_about).setBackgroundResource(R.drawable.defaultbackground);
         fucksmartbar();
-
-        AboutView aboutView=new AboutView(getApplicationContext(),getVersion());
-        aboutView.invalidate();
-        aboutView.layout(0, 0, 0, 0);
-        ActionBar.LayoutParams lp=new ActionBar.LayoutParams(0);
-        this.addContentView(aboutView, lp);
+        ((AboutView)findViewById(R.id.aboutview)).setVersion(getVersion());
     }
     private String getVersion() {
         try {

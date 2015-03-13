@@ -14,21 +14,15 @@
         android:label="@string/appName"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".BlankActivity"
-            android:excludeFromRecents="true"
-            android:label="@string/appName" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:excludeFromRecents="true"
-            android:label="@string/_blank"
+            android:label="@string/appName"
             android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".SettingActivity"

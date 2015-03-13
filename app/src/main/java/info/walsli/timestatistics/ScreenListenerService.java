@@ -5,24 +5,15 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.TypedValue;
-import android.widget.RemoteViews;
+import android.text.format.Time;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 public class ScreenListenerService extends Service {
@@ -42,12 +33,17 @@ public class ScreenListenerService extends Service {
         filter.addAction(Intent.ACTION_BOOT_COMPLETED);
         filter.addAction(Intent.ACTION_SHUTDOWN);
         filter.addCategory(Intent.ACTION_DATE_CHANGED);
-        filter.addAction("info.walsli.timestatistics.NEW_WIDGET");
+        filter.addAction(ConstantField.NEW_WIDGET);
         registerReceiver(receiver, filter);
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         isScreenOn =powerManager.isScreenOn();
         Thread thread=new Thread(new ProgressRunable());
         thread.start();
+
+        Time t=new Time();
+        t.setToNow();
+        long l=t.toMillis(false)/1000;
+        MyUtils.setBeginTime(l);
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
@@ -80,7 +76,7 @@ public class ScreenListenerService extends Service {
 
         @Override
         public void run() {
-            long todayseconds=MyTime.getTodaySeconds();
+            long todayseconds=MyUtils.getTodaySeconds();
             long countdownnum=60-todayseconds%60;
             long seconds=todayseconds/60;
             updatewidget(seconds-1);
@@ -124,88 +120,13 @@ public class ScreenListenerService extends Service {
         }
 
     }
-    public void updatewidget(long minutes)
-    {
-        if(MyLogic.isCallCountDown(minutes))
-        {
-            callcountdown(minutes);
-        }
-        RemoteViews updateView = new RemoteViews(this.getPackageName(),R.layout.mywidget);
-        if(MyLogic.getModel()==3)
-        {
-            updateView.setTextViewTextSize(R.id.text_02, TypedValue.COMPLEX_UNIT_PX,35);
-
-            Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.backgroundofwidgetmx2).copy(Bitmap.Config.ARGB_8888, true); ;
-            Canvas canvas = new Canvas(bitmap);
-            Paint p=new Paint();
-            p.setAntiAlias(true);
-            p.setDither(true);
-            p.setTypeface(MyApplication.getInstance().gettypeface());
-            p.setColor(Color.WHITE);
-
-
-            RectF oval2 = new RectF(20,20,124,124);//xyxy
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth((float) 1.5);
-            canvas.drawArc(oval2,-20,290,false, p);
-
-            //时刻
-            String time="";
-            if((minutes+1)/60<10)time+="0";
-            time+=String.valueOf((minutes+1)/60);
-            time+=":";
-            if(((minutes+1)%60)<10)time+="0";
-            time+=String.valueOf((minutes+1)%60);
-            p.setStyle(Paint.Style.FILL);
-            p.setSubpixelText(true);
-            p.setTextSize(31);
-            canvas.drawText(time,37,85,p);
-            updateView.setImageViewBitmap(R.id.my_widget_img, bitmap);
-        }
-        else
-        {
-            updateView.setTextViewTextSize(R.id.text_02, TypedValue.COMPLEX_UNIT_PX,30);
-
-            Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.backgroundofwidgetmx2).copy(Bitmap.Config.ARGB_8888, true); ;
-            Canvas canvas = new Canvas(bitmap);
-            Paint p=new Paint();
-            p.setAntiAlias(true);
-            p.setDither(true);
-            p.setTypeface(MyApplication.gettypeface());
-            p.setColor(Color.WHITE);
-
-
-            RectF oval2 = new RectF(15,15,91,91);//xyxy
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth((float) 1.0);
-            canvas.drawArc(oval2,-20,290,false, p);
-
-            //时刻
-            String time="";
-            if((minutes+1)/60<10)time+="0";
-            time+=String.valueOf((minutes+1)/60);
-            time+=":";
-            if(((minutes+1)%60)<10)time+="0";
-            time+=String.valueOf((minutes+1)%60);
-            p.setStyle(Paint.Style.FILL);
-            p.setSubpixelText(true);
-            p.setTextSize(23);
-            canvas.drawText(time,27,63,p);
-            updateView.setImageViewBitmap(R.id.my_widget_img, bitmap);
-        }
-        Intent launchIntent = new Intent();
-        launchIntent.setComponent(new ComponentName("info.walsli.timestatistics","info.walsli.timestatistics.MainActivity"));
-        launchIntent.setAction(Intent.ACTION_MAIN);
-        launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent intentAction = PendingIntent.getActivity(this, 0, launchIntent, 0);
-        updateView.setOnClickPendingIntent(R.id.my_widget_img, intentAction);
-        AppWidgetManager awg = AppWidgetManager.getInstance(this);
-        awg.updateAppWidget(new ComponentName(this, MyWidget.class), updateView);
+    public void updatewidget(long minutes) {
+        //TODO
     }
+
     public void callcountdown(long mins)
     {
-        MyLogic.setTodayRemind(true);
+        MyUtils.setTodayRemind(true);
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager mNotificationManager = (NotificationManager)getSystemService(ns);
         CharSequence contentText = "您今天已经使用手机"+String.valueOf(mins)+"分钟了，请放下手机休息一下吧"; //通知栏内容
@@ -225,51 +146,39 @@ public class ScreenListenerService extends Service {
         @Override
         public void onReceive(final Context context, final Intent intent)
         {
+            Time t=new Time();
+            t.setToNow();
+            long l=t.toMillis(false)/1000;
             if (Intent.ACTION_SCREEN_ON.equals(intent.getAction()))
             {
-
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                String date = sDateFormat.format(new java.util.Date());
-                MyTime.setBeginTime(date);
-                MyTime.increaseScreenonFrequency();
+                MyUtils.setBeginTime(l);
+                MyUtils.increaseScreenOnFrequency();
                 isScreenOn =true;
                 Thread thread=new Thread(new ProgressRunable());
                 thread.start();
             }
             else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction()))
             {
-
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                String date = sDateFormat.format(new java.util.Date());
-                MyTime.processTime(date);
+                MyUtils.processTime(l);
                 isScreenOn =false;
-
             }
             else if (Intent.ACTION_SHUTDOWN.equals(intent.getAction()))
             {
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                String date = sDateFormat.format(new java.util.Date());
-                MyTime.processTime(date);
+                MyUtils.processTime(l);
                 isScreenOn =false;
             }
             else if (Intent.ACTION_DATE_CHANGED.equals(intent.getAction()))
             {
                 if(isScreenOn)
                 {
-                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                    String date = sDateFormat.format(new java.util.Date());
-                    MyTime.processTime(date);
-                    MyTime.setBeginTime(date);
-                    updatewidget(MyTime.getTodaySeconds()/60-1);
+                    MyUtils.processTime(l);
+                    MyUtils.setBeginTime(l);
+                    //updatewidget(MyTime.getTodaySeconds()/60-1);//TODO
                 }
             }
             else if ("info.walsli.timestatistics.NEW_WIDGET".equals(intent.getAction()))
             {
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                String date = sDateFormat.format(new java.util.Date());
-                MyTime.processTime(date);
-                MyTime.setBeginTime(date);
-                updatewidget(MyTime.getTodaySeconds()/60-1);
+                //TODO
             }
         }
     };

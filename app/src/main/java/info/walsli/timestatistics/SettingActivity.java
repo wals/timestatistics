@@ -1,11 +1,10 @@
 package info.walsli.timestatistics;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +20,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
+import android.text.format.Time;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -31,12 +31,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 public class SettingActivity extends PreferenceActivity implements OnPreferenceChangeListener,OnPreferenceClickListener{
     private SharedPreferences mySharedPreferences;
     private SharedPreferences.Editor editor;
-    private DBHelper helper;
     private static Handler mHandler;
 
     private PreferenceCategory allsecondsPreferenceCategory;
@@ -50,7 +48,6 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
     private Preference feedbackPreference;
     private Preference mstorePreference;
     private PreferenceCategory advancedSettingPreferenceCategory;
-    private CheckBoxPreference hideIconCheckBoxPreference;
     private PreferenceCategory blankPreferenceCategory;
     private Preference aboutPreference;
     private Preference quitPreference;
@@ -64,11 +61,10 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         tintManager.setNavigationBarTintEnabled(true);
         tintManager.setTintColor(Color.BLACK);
 
-        getPreferenceManager().setSharedPreferencesName("info.walsli.timestatistics");
+        getPreferenceManager().setSharedPreferencesName(ConstantField.PACKAGE_NAME);
         addPreferencesFromResource(R.xml.setting);
-        mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
+        mySharedPreferences =getSharedPreferences(ConstantField.PACKAGE_NAME,Activity.MODE_MULTI_PROCESS);
         editor = mySharedPreferences.edit();
-        helper =MyApplication.getDBHelper();
 
         initPreferenceScreen();
         showPreferences(mySharedPreferences.getBoolean("iscountdown",false));
@@ -83,7 +79,6 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         resetPreference=new Preference(this);
         feedbackPreference=new Preference(this);
         mstorePreference=new Preference(this);
-        hideIconCheckBoxPreference =new CheckBoxPreference(this);
         aboutPreference=new Preference(this);
         quitPreference=new Preference(this);
         backupOrRestorePreferenceCategory=new PreferenceCategory(this);
@@ -130,25 +125,20 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         mstorePreference.setOrder(8);
         advancedSettingPreferenceCategory.setTitle("高级设置");
         advancedSettingPreferenceCategory.setOrder(9);
-        hideIconCheckBoxPreference.setKey("hideIcon");
-        hideIconCheckBoxPreference.setTitle("隐藏应用图标");
-        hideIconCheckBoxPreference.setSummary("长按主屏幕，在下方添加小工具即可添加魅时间小工具，小工具可以代替图标功能，并且显示时间会动态更新");//TODO add alert
-        hideIconCheckBoxPreference.setOnPreferenceChangeListener(this);
-        hideIconCheckBoxPreference.setOrder(10);
         resetPreference.setKey("reset");
         resetPreference.setTitle("清除数据");
         resetPreference.setSummary("清空数据时会自动备份当前数据");
         resetPreference.setOnPreferenceClickListener(this);
-        resetPreference.setOrder(11);
-        blankPreferenceCategory.setOrder(12);
+        resetPreference.setOrder(10);
+        blankPreferenceCategory.setOrder(11);
         aboutPreference.setKey("about");
         aboutPreference.setTitle("关于");
         aboutPreference.setOnPreferenceClickListener(this);
-        aboutPreference.setOrder(13);
+        aboutPreference.setOrder(12);
         quitPreference.setKey("quit");
         quitPreference.setTitle("完全退出");//TODO add alert
         quitPreference.setOnPreferenceClickListener(this);
-        quitPreference.setOrder(14);
+        quitPreference.setOrder(13);
     }
     private void showPreferences(boolean iscountdown)
     {
@@ -168,7 +158,6 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         screen.addPreference(feedbackPreference);
         screen.addPreference(mstorePreference);
         screen.addPreference(advancedSettingPreferenceCategory);
-        screen.addPreference(hideIconCheckBoxPreference);
         screen.addPreference(resetPreference);
         screen.addPreference(blankPreferenceCategory);
         screen.addPreference(aboutPreference);
@@ -220,10 +209,10 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             Intent intent = new Intent(this, ScreenListenerService.class);
             stopService(intent);
             Intent intent2 = new Intent();
-            intent2.setAction("info.walsli.timestatistics.MainActivityFinishReceiver");
+            intent2.setAction(ConstantField.MAINACTIVITY_FINISH);
             this.sendBroadcast(intent2);
             Intent intent3 = new Intent();
-            intent3.setAction("info.walsli.timestatistics.StatisticsActivityFinishReceiver");
+            intent3.setAction(ConstantField.STATISTICSACTIVITY_FINISH);
             this.sendBroadcast(intent3);
             editor.putString("begintime","");
             editor.putBoolean("reboot",false);
@@ -258,8 +247,10 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             else
             {
                 backupData();
-                helper.cleandb();
-                MyLogic.initSharedPreferences();
+                DBManager dbManager=new DBManager(MyApplication.getInstance());
+                dbManager.cleanDB();
+                dbManager.closeDB();
+                MyUtils.initSharedPreferences();
                 Toast.makeText(this,"清空数据完毕,之前数据已经自动备份",Toast.LENGTH_SHORT).show();
             }
         }
@@ -274,24 +265,6 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         if(preference.getKey().equals("iscountdown"))
         {
             showPreferences(!mySharedPreferences.getBoolean("iscountdown",false));
-            return true;
-        }
-
-        else if(preference.getKey().equals("hideIcon"))
-        {
-            PackageManager packageManager = getPackageManager();
-            ComponentName componentName = new ComponentName("info.walsli.timestatistics","info.walsli.timestatistics.BlankActivity");
-            if(hideIconCheckBoxPreference.isChecked())
-            {
-                packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                        PackageManager.DONT_KILL_APP);
-            }
-            else
-            {
-                packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                        PackageManager.DONT_KILL_APP);
-            }
-
             return true;
         }
         else if(preference.getKey().equals("countdownnum"))
@@ -311,10 +284,11 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
         {
             DBHelper.lock=true;
 
-            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-            String date = sDateFormat.format(new java.util.Date());
-            MyTime.processTime(date);
-            MyTime.setBeginTime(date);
+            Time t=new Time();
+            t.setToNow();
+            long l=t.toMillis(false)/1000;
+            MyUtils.processTime(l);
+            MyUtils.setBeginTime(l);
             String folderstr = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/";
             File folder = new File(folderstr);
             if(!folder.exists())
@@ -323,7 +297,7 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             }
             String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份.bak";
             File saveFile = new File(path);
-            String pathbackup = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份"+date+".bak";
+            String pathbackup = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份"+t.format2445()+".bak";
             File saveFilebackup = new File(pathbackup);
             if(saveFile.exists())
             {
@@ -333,12 +307,15 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             {
                 BufferedWriter output = new BufferedWriter(new FileWriter(saveFile,true));
                 BufferedWriter outputbackup = new BufferedWriter(new FileWriter(saveFilebackup,true));
-                Cursor c=helper.query("select * from timeinfo");
+                DBManager dbManager=new DBManager(MyApplication.getInstance());
+                Cursor c=dbManager.query("select * from timeinfo");
                 while(c.moveToNext())
                 {
                     output.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
                     outputbackup.append(String.valueOf(c.getInt(1))+" "+String.valueOf(c.getInt(2))+" "+String.valueOf(c.getInt(3))+"\n");
                 }
+                c.close();
+                dbManager.closeDB();
                 output.flush();
                 output.close();
                 outputbackup.flush();
@@ -399,7 +376,8 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
             else
             {
                 DBHelper.lock=true;
-                helper.cleandb();
+                DBManager dbManager=new DBManager(MyApplication.getInstance());
+                dbManager.cleanDB();
                 String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/timestatistics/魅时间备份.bak";
                 File file = new File(path);
                 if(!file.exists())
@@ -422,34 +400,43 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
                         reader = new BufferedReader(new FileReader(file));
                         String tempString;
                         int tempInteger=0;
-                        while ((tempString = reader.readLine()) != null)
+                        SQLiteDatabase db=dbManager.getDB();
+                        db.beginTransaction();
+                        try
                         {
-                            if(count>=90&&tempInteger%(count/90)==0)
+                            while ((tempString = reader.readLine()) != null)
                             {
-                                mHandler.sendEmptyMessage(100 + tempInteger / (count / 90));
+                                if(count>=90&&tempInteger%(count/90)==0)
+                                {
+                                    mHandler.sendEmptyMessage(100 + tempInteger / (count / 90));
+                                }
+                                String ints[]=tempString.split(" ");
+                                dbManager.insertIntoTimeinfo(Integer.parseInt(ints[0]), Integer.parseInt(ints[1]), Integer.parseInt(ints[2]));
+                                tempInteger++;
                             }
-                            String ints[]=tempString.split(" ");
-                            helper.insertIntoTimeinfo(Integer.parseInt(ints[0]), Integer.parseInt(ints[1]), Integer.parseInt(ints[2]));
-                            tempInteger++;
+                            reader.close();
+                            db.setTransactionSuccessful();
                         }
-                        reader.close();
-                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                        String date = sDateFormat.format(new java.util.Date());
-                        MyTime.setBeginTime(date);
-                        sDateFormat = new SimpleDateFormat("dd");
-                        date = sDateFormat.format(new java.util.Date());
-                        editor.putInt("date",Integer.parseInt(date));
-                        for(int i=1;i<=MyTime.getDayNum();i++)
+                        finally {
+                            db.endTransaction();
+                        }
+                        Time t=new Time();
+                        t.setToNow();
+                        long l=t.toMillis(false)/1000;
+                        MyUtils.setBeginTime(l);
+                        int date=MyUtils.getDaysFrom20140715();
+                        editor.putInt("date",date);
+                        for(int i=1;i<=date;i++)
                         {
-                            helper.settlement(i);
-                            mHandler.sendEmptyMessage((int) (190+(float)i/MyTime.getDayNum()*10));
+                            dbManager.calculateTimeOfDays(i);
+                            mHandler.sendEmptyMessage((int) (190+(float)i/date*10));
                         }
-                        Cursor c=helper.query("select * from timeofdays where datenum="+String.valueOf(MyTime.getDayNum()));
+                        Cursor c=dbManager.query("select * from timeofdays where datenum="+String.valueOf(date));
                         while(c.moveToNext())
                         {
                             editor.putLong("todayseconds", c.getInt(2));
                         }
-                        c=helper.query("select * from timeofdays");
+                        c=dbManager.query("select * from timeofdays");
                         long allseconds=0;
                         while(c.moveToNext())
                         {
@@ -457,6 +444,8 @@ public class SettingActivity extends PreferenceActivity implements OnPreferenceC
                         }
                         editor.putLong("allseconds", allseconds);
                         editor.apply();
+                        c.close();
+                        dbManager.closeDB();
                         mHandler.sendEmptyMessage(4);
                     }
                     catch (IOException e)

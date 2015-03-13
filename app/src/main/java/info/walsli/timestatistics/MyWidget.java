@@ -41,7 +41,7 @@ public class MyWidget extends AppWidgetProvider{
     public void onEnabled(Context context)
     {
         super.onEnabled(context);
-        Intent intent=new Intent("info.walsli.timestatistics.NEW_WIDGET");
+        Intent intent=new Intent(ConstantField.NEW_WIDGET);
         context.sendBroadcast(intent);
     }
 

@@ -1,7 +1,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="info.walsli.timestatistics.MainActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame"
+    android:orientation="vertical">
+<info.walsli.timestatistics.MainView
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/clockview"/>
+</FrameLayout>

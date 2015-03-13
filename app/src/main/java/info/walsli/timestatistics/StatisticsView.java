@@ -15,7 +15,6 @@ import java.util.Date;
 public class StatisticsView extends View {
     Paint p=new Paint();
     int a[][];
-    DBHelper helper;
     float[][] location=new float[10][2];
     boolean showdetail=false;
     int pickedday=0;
@@ -28,7 +27,6 @@ public class StatisticsView extends View {
         p.setStyle(Paint.Style.FILL);
         p.setTextSize(30);
         p.setSubpixelText(true);
-        helper = MyApplication.getDBHelper();
         postInvalidate();
     }
     @Override
@@ -62,7 +60,7 @@ public class StatisticsView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if(MyLogic.getModel()==3)
+        if(true)//(MyLogic.getModel()==3)
         {
             drawmx3(canvas);
         }
@@ -145,8 +143,9 @@ public class StatisticsView extends View {
             p.setStrokeWidth(200);
             RectF rectf2=new RectF(140,500,940,1300);
 
+            DBManager dbManager=new DBManager(MyApplication.getInstance());
+            Cursor c=dbManager.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
 
-            Cursor c=helper.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
             int begin=0;
             int end=0;
             while(c.moveToNext())
@@ -164,7 +163,7 @@ public class StatisticsView extends View {
             }
             canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
             c.close();
-
+            dbManager.closeDB();
             p.setTypeface(MyApplication.gettypeface());
             p.setTextSize(140);
             String time="";
@@ -266,8 +265,9 @@ public class StatisticsView extends View {
 
             p.setStrokeWidth(150);
             RectF rectf2=new RectF(125,365,675,915);
-
-            Cursor c=helper.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
+            DBManager dbManager=new DBManager(MyApplication.getInstance());
+            Cursor c=dbManager.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
+            dbManager.closeDB();
             int begin=0;
             int end=0;
             while(c.moveToNext())

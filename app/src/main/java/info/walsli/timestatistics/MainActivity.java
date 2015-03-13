@@ -1,78 +1,58 @@
 package info.walsli.timestatistics;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MainActivity extends Activity {
-    private boolean inFornt=false;
-    private ClockView clockview=null;
-    private Thread thread;
+    private boolean inFront =false;
+    private MainView mMainView =null;
+    private Thread mThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
-        //findViewById(R.id.container).setBackgroundColor(Color.parseColor("#E2EDC9"));
+        findViewById(R.id.activity_main).setBackgroundResource(R.drawable.defaultbackground);
+        mMainView =(MainView)findViewById(R.id.clockview);
         fucksmartbar();
+        logicOperatings();
+        intentOperatings();
 
-        if(!MyLogic.isSharedPreferencesInit())
-        {
-            MyLogic.initSharedPreferences();
-            startActivity(new Intent(this,GuideActivity.class));
-        }
-        MyLogic.setReboot(true);
-        if(!MyLogic.isModelDetermined())
-        {
-            if(getWindowManager().getDefaultDisplay().getWidth()==800)
-            {
-                MyApplication.setModel(2);
-            }
-            else
-            {
-                MyApplication.setModel(3);
-            }
-        }
+    }
+    private void intentOperatings()
+    {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConstantField.MAINACTIVITY_FINISH);
+        filter.addAction(ConstantField.MAINACTIVITY_RESTART);
+        registerReceiver(receiver, filter);
 
-        clockInit();
-
-        if(!MyLogic.isServiceWorked(this))
+        Intent intent = new Intent();
+        intent.setAction(ConstantField.BLANKACTIVITY_FINISH);
+        this.sendBroadcast(intent);
+    }
+    private void logicOperatings()
+    {
+        MyUtils.initSharedPreferences();
+        MyUtils.setReboot(true);
+        if(!MyUtils.isServiceWorked(this))
         {
             Intent serviceIntent = new Intent(this, ScreenListenerService.class);
             this.startService(serviceIntent);
         }
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("info.walsli.timestatistics.MainActivityFinishReceiver");
-        filter.addAction("info.walsli.timestatistics.MainActivityRestartReceiver");
-        registerReceiver(receiver, filter);
-
-        Intent intent = new Intent();
-        intent.setAction("info.walsli.timestatistics.BlankActivityFinishReceiver");
-        this.sendBroadcast(intent);
-
-        loveformonica();
     }
-    private void loveformonica()
-    {
-
-
-    }
-
     @Override
     protected void onDestroy()
     {
@@ -98,17 +78,17 @@ public class MainActivity extends Activity {
     {
         if(!DBHelper.lock)
         {
-            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-            String date = sDateFormat.format(new java.util.Date());
-            MyTime.processTime(date);
-            MyTime.setBeginTime(date);
-            inFornt=true;
-            thread=new Thread(new ProgressRunable());
-            thread.start();
+            Time t=new Time();
+            t.setToNow();
+            MyUtils.processTime(t.toMillis(false)/1000);
+            MyUtils.setBeginTime(t.toMillis(false)/1000);
+            inFront =true;
+            mThread =new Thread(new ProgressRunable());
+            mThread.start();
         }
         else
         {
-            clockview.refreshclock(19212,0,-1);
+            mMainView.setTime(19212, 0, -1);
         }
         super.onResume();
     }
@@ -116,7 +96,7 @@ public class MainActivity extends Activity {
     @Override
     public void onPause()
     {
-        inFornt=false;
+        inFront =false;
         super.onPause();
     }
 
@@ -134,14 +114,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void clockInit()
-    {
-        this.clockview=new ClockView(this,MyTime.getTodaySeconds());
-        clockview.invalidate();
-        clockview.layout(0, 0, 0, 0);
-        ActionBar.LayoutParams lp=new ActionBar.LayoutParams(0);
-        this.addContentView(clockview, lp);
-    }
 
     private void fucksmartbar()
     {
@@ -173,13 +145,13 @@ public class MainActivity extends Activity {
     {
         @Override
         public void run() {
-            long seconds=MyTime.getTodaySeconds();
-            int screenon_frequency=MyTime.getScreenonFrequency();
+            long seconds=MyUtils.getTodaySeconds();
+            int screenon_frequency=MyUtils.getScreenOnFrequency();
             Calendar c = Calendar.getInstance();
             int hour=c.get(Calendar.HOUR_OF_DAY);
-            while(inFornt)
+            while(inFront)
             {
-                clockview.refreshclock(seconds,screenon_frequency,hour);
+                mMainView.setTime(seconds, screenon_frequency, hour);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -197,11 +169,11 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(final Context context, final Intent intent)
         {
-            if ("info.walsli.timestatistics.MainActivityFinishReceiver".equals(intent.getAction()))
+            if (ConstantField.MAINACTIVITY_FINISH.equals(intent.getAction()))
             {
                 MainActivity.this.finish();
             }
-            else if ("info.walsli.timestatistics.MainActivityRestartReceiver".equals(intent.getAction()))
+            else if (ConstantField.MAINACTIVITY_RESTART.equals(intent.getAction()))
             {
                 MainActivity.this.recreate();
             }

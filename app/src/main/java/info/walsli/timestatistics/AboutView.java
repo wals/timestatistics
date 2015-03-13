@@ -7,27 +7,39 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 
-public class AboutView extends BaseView {
-
+public class AboutView extends View {
+    int screenWidth;
+    int screenHeight;
+    RectF rectf1;
+    RectF rectf2;
+    RectF rectf3;
+    RectF rectf4;
     String version="";
 
     int password=0;
-    RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
-    RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
-    RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
-    RectF rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
-
-    public AboutView(Context context,String version) {
-        super(context);
+    public void setVersion(String version)
+    {
         this.version=version;
-        postInvalidate();
     }
-    public AboutView(Context context) {
-        super(context);
+    public AboutView(Context context,AttributeSet attrs) {
+        super(context,attrs);
         this.version="2.31FTL";
         postInvalidate();
+    }
+    @Override
+    public void onLayout(boolean changed,int left,int top,int right,int buttom)
+    {
+        super.onLayout(changed,left,top,right,buttom);
+        screenHeight=getHeight();
+        screenWidth=getWidth();
+        rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
+        rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
+        rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
+        rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
     }
     private int getAreaNum(MotionEvent event)
     {
@@ -127,7 +139,7 @@ public class AboutView extends BaseView {
         super.onDraw(canvas);
 
         Paint p=initPaint();
-        canvas.drawText(""+MyTime.getDayNum()+"天",(float) (screenWidth/2.0),getBaseLine(p,rectf2),p);
+        canvas.drawText(""+MyUtils.getDaysFrom20140715()+"天",(float) (screenWidth/2.0),getBaseLine(p,rectf2),p);
         p.setTypeface(Typeface.DEFAULT);
 
         p.setTextSize((float) (screenWidth/30.0));
@@ -143,5 +155,9 @@ public class AboutView extends BaseView {
 
 
     }
-
+    protected float getBaseLine(Paint p,RectF rectf)
+    {
+        Paint.FontMetricsInt fontMetrics = p.getFontMetricsInt();
+        return rectf.top + (rectf.bottom - rectf.top - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
+    }
 }

@@ -19,7 +19,6 @@ import java.util.Calendar;
 
 public class StatisticsActivity extends Activity {
     StatisticsView canvasview;
-    DBHelper helper;
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor editor;
     IntentFilter filter;
@@ -28,17 +27,16 @@ public class StatisticsActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_statistics);
-        findViewById(R.id.container).setBackgroundDrawable(MyApplication.getdrawable());
-        helper = MyApplication.getDBHelper();
+        findViewById(R.id.container).setBackgroundResource(R.drawable.defaultbackground);
         viewinit();
         fucksmartbar();
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction("info.walsli.timestatistics.StatisticsActivityFinishReceiver");
-        filter.addAction("info.walsli.timestatistics.StatisticsActivityRestartReceiver");
+        filter.addAction(ConstantField.STATISTICSACTIVITY_FINISH);
+        filter.addAction(ConstantField.STATISTICSACTIVITY_RESTART);
         registerReceiver(receiver, filter);
 
-        mySharedPreferences =getSharedPreferences("info.walsli.timestatistics",Activity.MODE_MULTI_PROCESS);
+        mySharedPreferences =getSharedPreferences(ConstantField.PACKAGE_NAME,Activity.MODE_MULTI_PROCESS);
         editor = mySharedPreferences.edit();
 
     }
@@ -46,7 +44,6 @@ public class StatisticsActivity extends Activity {
     protected void onDestroy()
     {
         System.gc();
-        helper.close();
         unregisterReceiver(receiver);
         super.onDestroy();
     }
@@ -94,18 +91,14 @@ public class StatisticsActivity extends Activity {
     {
         if(DBHelper.lock)
         {
-            ClockView clockView=new ClockView(this,19200);
-            clockView.invalidate();
-            clockView.layout(0, 0, 0, 0);
-            LayoutParams lp=new LayoutParams(0);
-            this.addContentView(clockView, lp);
-            clockView.refreshclock(19212,0,-1);
+            //TODO write
         }
         else
         {
-            helper.settlement(getGapCount());
+            DBManager dbManager=new DBManager(MyApplication.getInstance());
+            dbManager.calculateTimeOfDays(getGapCount());
+            Cursor c=dbManager.query("select * from timeofdays order by datenum asc;");
 
-            Cursor c=helper.query("select * from timeofdays order by datenum asc;");
             int a[][]=new int[c.getCount()][2];
             int i=0;
             while(c.moveToNext())
@@ -146,6 +139,8 @@ public class StatisticsActivity extends Activity {
                     b[k][1]=a[c.getCount()-10+k][1];
                 }
             }
+            c.close();
+            dbManager.closeDB();
             this.canvasview=new StatisticsView(this,b);
             canvasview.invalidate();
             canvasview.layout(0, 0, 0, 0);
@@ -190,11 +185,11 @@ public class StatisticsActivity extends Activity {
         @Override
         public void onReceive(final Context context, final Intent intent)
         {
-            if ("info.walsli.timestatistics.StatisticsFinishReceiver".equals(intent.getAction()))
+            if (ConstantField.STATISTICSACTIVITY_FINISH.equals(intent.getAction()))
             {
                 StatisticsActivity.this.finish();
             }
-            else if ("info.walsli.timestatistics.StatisticsActivityRestartReceiver".equals(intent.getAction()))
+            else if (ConstantField.STATISTICSACTIVITY_RESTART.equals(intent.getAction()))
             {
                 StatisticsActivity.this.recreate();
             }
