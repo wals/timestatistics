@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);
         findViewById(R.id.activity_main).setBackgroundResource(R.drawable.defaultbackground);
+
         mMainView =(MainView)findViewById(R.id.clockview);
         fucksmartbar();
         logicOperatings();
@@ -52,6 +53,9 @@ public class MainActivity extends Activity {
             Intent serviceIntent = new Intent(this, ScreenListenerService.class);
             this.startService(serviceIntent);
         }
+        DBManager mDBManager=new DBManager(MyApplication.getInstance());
+        mDBManager.upgradeDB();
+        mDBManager.closeDB();
     }
     @Override
     protected void onDestroy()

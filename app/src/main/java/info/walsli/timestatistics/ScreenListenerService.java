@@ -13,12 +13,10 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.text.format.Time;
-
-import java.util.HashMap;
+import android.util.Log;
 
 public class ScreenListenerService extends Service {
     private boolean isScreenOn =false;
-    private HashMap<String, Integer> appSecondsPerDay = MyApplication.getAppSecondsPerDay();
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -59,34 +57,53 @@ public class ScreenListenerService extends Service {
 
     class ProgressRunable implements Runnable
     {
-        public void putSecondsIntoHashmap()
+
+        private String getUsedPackageName()
         {
             ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
             ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-            String packageName = cn.getPackageName();
-            if(appSecondsPerDay.containsKey(packageName))
+            return cn.getPackageName();
+        }
+        private void insertPackageNameIntoDB(String packageName,long start,long end)
+        {
+            Time t1=new Time();
+            t1.set(start*1000);
+            Time t2=new Time();
+            t2.set(end*1000);
+            int startDay=MyUtils.getDaysFromTime(start);
+            int endDay=MyUtils.getDaysFromTime(end);
+            DBManager mDBManager=new DBManager(MyApplication.getInstance());
+            if(startDay!=endDay)
             {
-                appSecondsPerDay.put(packageName, appSecondsPerDay.get(packageName)+1);
+                mDBManager.insertIntoTimeDetails(startDay,packageName,t1.hour*3600+t1.minute*60+t1.second,86439);
+                mDBManager.insertIntoTimeDetails(endDay,packageName,0,t2.hour*3600+t2.minute*60+t2.second);
             }
             else
             {
-                appSecondsPerDay.put(packageName,1);
+                mDBManager.insertIntoTimeDetails(startDay,packageName,t1.hour*3600+t1.minute*60+t1.second,t2.hour*3600+t2.minute*60+t2.second);
             }
         }
-
         @Override
         public void run() {
-            long todayseconds=MyUtils.getTodaySeconds();
-            long countdownnum=60-todayseconds%60;
-            long seconds=todayseconds/60;
-            updatewidget(seconds-1);
-            while(isScreenOn &&(countdownnum>0))
+            String lastusedPackageName=getUsedPackageName();
+            Time t=new Time();
+            t.setToNow();
+            while(isScreenOn)
             {
+                String inFrontPackageName=getUsedPackageName();
+                if(!lastusedPackageName.equals(inFrontPackageName))
+                {
+                    Time temp=new Time();
+                    temp.setToNow();
+                    insertPackageNameIntoDB(lastusedPackageName,t.toMillis(false)/1000,temp.toMillis(false)/1000);
+                    Log.e("walsli",lastusedPackageName+" "+t.format2445()+" "+temp.format2445());
+                    t.setToNow();
+                    lastusedPackageName=inFrontPackageName;
+
+                }
                 try
                 {
                     Thread.sleep(1000);
-                    countdownnum--;
-                    putSecondsIntoHashmap();
                 }
                 catch (InterruptedException e)
                 {
@@ -94,29 +111,9 @@ public class ScreenListenerService extends Service {
                 }
 
             }
-            if(isScreenOn)
-            {
-                updatewidget(seconds);
-            }
-            countdownnum=59;
-            while(isScreenOn)
-            {
-                try
-                {
-                    Thread.sleep(1000);
-                    countdownnum--;
-                    putSecondsIntoHashmap();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-                if(countdownnum==0)
-                {
-                    updatewidget(++seconds);
-                    countdownnum=59;
-                }
-            }
+            Time temp=new Time();
+            temp.setToNow();
+            insertPackageNameIntoDB(lastusedPackageName,t.toMillis(false)/1000,temp.toMillis(false)/1000);
         }
 
     }

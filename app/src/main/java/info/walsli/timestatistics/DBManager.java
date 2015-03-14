@@ -21,18 +21,34 @@ public class DBManager {
     }
     public void upgradeDB()
     {
-        db.execSQL(ConstantField.CREATE_TABLE_TIMEOFAPPS);
+        if(!isDBExists("timedetails"))
+        {
+            db.execSQL(ConstantField.CREATE_TABLE_TIMEDETAILS);
+        }
+    }
+    public void insertIntoTimeDetails(int day,String packageName,int start,int end)
+    {
+        if(!isDBExists("detail"+day))
+        {
+            db.execSQL("create table detail"+day+"(_id integer primary key autoincrement,appname text,opentime integer,closetime integer)");
+            insertIntoTimeDetails(day);
+        }
+        ContentValues values=new ContentValues();
+        values.put("appname",packageName);
+        values.put("opentime",start);
+        values.put("closetime",end);
+        db.insert("detail"+day,null,values);
     }
     public Cursor query(String s)
     {
         return db.rawQuery(s,null);
     }
-    public boolean isTimeOfAppsExist()
+    public boolean isDBExists(String mDBName)
     {
         Cursor c=db.rawQuery("select name from sqlite_master where type='table';",null);
         while(c.moveToNext())
         {
-            if(c.getString(0).equals("timeofapps"))
+            if(c.getString(0).equals(mDBName))
             {
                 c.close();
                 return true;
@@ -74,13 +90,11 @@ public class DBManager {
         c.close();
 
     }
-    public void insertIntoTimeOfApps(int datenum,String appname,int appseconds)
+    public void insertIntoTimeDetails(int day)
     {
-        ContentValues values = new ContentValues();
-        values.put("datenum", datenum);
-        values.put("appname", appname);
-        values.put("appseconds", appseconds);
-        db.insert("timeofapps", null, values);
+        ContentValues values=new ContentValues();
+        values.put("datenum",day);
+        db.insert("timedetails",null,values);
     }
     public void insertIntoTimeinfo(int datenum,int opentime,int closetime) {
         ContentValues values = new ContentValues();

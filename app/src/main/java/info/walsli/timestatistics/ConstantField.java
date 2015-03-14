@@ -6,7 +6,7 @@ public final class ConstantField {
 
     public static final String CREATE_TABLE_TIMEINFO="create table timeinfo(_id integer primary key autoincrement,datenum integer,opentime integer,closetime integer)";
     public static final String CREATE_TABLE_TIMEOFDAYS="create table timeofdays(_id integer primary key autoincrement,datenum integer,todaytime integer)";
-    public static final String CREATE_TABLE_TIMEOFAPPS="create table timeofapps(_id integer primary key autoincrement,datenum integer,appname text,appseconds integer)";
+    public static final String CREATE_TABLE_TIMEDETAILS="create table timedetails(_id integer primary key autoincrement,datenum integer)";
     public static final String DB_NAME="time.db";
 
     public static final String MAINVIEW_TOP_STRING="今天我的手机被使用了";
@@ -31,7 +31,6 @@ public final class ConstantField {
     public static final String MainView_SAYINGS_10_2="须正视欲匆匆溜走的时光";
 
     public static final String SPITEM_REBOOT="reboot";
-    public static final String SPITEM_MODEL="model";
     public static final String SPITEM_ISCONUTDOWN="iscountdown";
     public static final String SPITEM_TODAYREMIND="todayremind";
     public static final String SPITEM_COUNTDOWNNUM="countdownnum";

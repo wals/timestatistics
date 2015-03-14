@@ -18,6 +18,12 @@ public class AboutActivity extends Activity {
         findViewById(R.id.activity_about).setBackgroundResource(R.drawable.defaultbackground);
         fucksmartbar();
         ((AboutView)findViewById(R.id.aboutview)).setVersion(getVersion());
+
+        test();
+    }
+    private void test()
+    {
+
     }
     private String getVersion() {
         try {

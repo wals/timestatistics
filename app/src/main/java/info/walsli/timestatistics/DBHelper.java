@@ -14,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(ConstantField.CREATE_TABLE_TIMEINFO);
-        db.execSQL(ConstantField.CREATE_TABLE_TIMEOFAPPS);
+        db.execSQL(ConstantField.CREATE_TABLE_TIMEDETAILS);
         db.execSQL(ConstantField.CREATE_TABLE_TIMEOFDAYS);
     }
 

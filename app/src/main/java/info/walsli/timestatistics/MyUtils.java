@@ -107,7 +107,7 @@ public class MyUtils {
     }
     public static int processTime(long end)
     {
-        
+
         long begin=mySharedPreferences.getLong(ConstantField.SPITEM_BEGINTIME,0);
         if(begin==0)
         {
