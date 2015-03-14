@@ -6,28 +6,25 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Typeface;
+import android.text.format.Time;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.Date;
+import java.util.HashMap;
 
 public class StatisticsView extends View {
-    Paint p=new Paint();
-    int a[][];
+    DisplayMetrics dm = this.getResources().getDisplayMetrics();
+    int screenWidth = dm.widthPixels;
+    int screenHeight = dm.heightPixels;
     float[][] location=new float[10][2];
     boolean showdetail=false;
     int pickedday=0;
-    public StatisticsView(Context context,int a[][]) {
-        super(context);
-        this.a=a;
-        p.setAntiAlias(true);
-        p.setDither(true);
-        p.setColor(Color.WHITE);
-        p.setStyle(Paint.Style.FILL);
-        p.setTextSize(30);
-        p.setSubpixelText(true);
-        postInvalidate();
+    RectF rectf=new RectF(0,0,0,0);
+    public StatisticsView(Context context,AttributeSet attr) {
+        super(context,attr);
+
     }
     @Override
     public boolean onTouchEvent(MotionEvent event)
@@ -60,252 +57,188 @@ public class StatisticsView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if(true)//(MyLogic.getModel()==3)
+        if(!DBHelper.lock)
         {
-            drawmx3(canvas);
+            tempdraw(canvas);
         }
         else
         {
-            drawmx2(canvas);
+            Paint p=new Paint();
+            p.setTextSize((float) (screenWidth/20));
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setColor(Color.WHITE);
+            RectF rectf1=new RectF(0,0,screenWidth,screenHeight);
+            canvas.drawText("数据库忙碌，本页面暂不可用",(float)(screenWidth*0.5),getBaseLine(p,rectf1),p);
         }
     }
-    public void drawmx3(Canvas canvas)
+    public void tempdraw(Canvas canvas)
     {
-        p.setTextSize(30);
+        Paint p=new Paint();
+        p.setAntiAlias(true);
+        p.setDither(true);
+        p.setColor(Color.WHITE);
+        p.setStyle(Paint.Style.FILL);
+        p.setTextSize((float) (screenWidth/35.0));
+        p.setSubpixelText(true);
+
+
+        int dayNum=MyUtils.getDaysFrom20140715();
+        DBManager mDBManager=new DBManager(MyApplication.getInstance());
+        mDBManager.calculateTimeOfDays(dayNum);
+        int dayAndSeond[][]=new int[10][2];
+        HashMap<Integer,Integer> mHashMap=new HashMap<Integer,Integer>();
+        Cursor c=mDBManager.query("select * from timeofdays");
+        while(c.moveToNext())
+        {
+            if(dayNum-c.getInt(1)<10)
+            {
+                mHashMap.put(c.getInt(1),c.getInt(2));
+            }
+        }
+        int maxSecond=0;
+        for(int i=dayNum-9;i<=dayNum;i++)
+        {
+            if(mHashMap.containsKey(i))
+            {
+                dayAndSeond[i-dayNum+9][0]=i;
+                dayAndSeond[i-dayNum+9][1]=mHashMap.get(i);
+                if(dayAndSeond[i-dayNum+9][1]>maxSecond)
+                {
+                    maxSecond=dayAndSeond[i-dayNum+9][1];
+                }
+            }
+            else
+            {
+                dayAndSeond[i-dayNum+9][0]=i;
+                dayAndSeond[i-dayNum+9][1]=0;
+            }
+        }
+        c.close();
         if(!showdetail)
         {
-            p.setStrokeWidth(5);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawRect(100, 1397, 980, 1403, p);
-            canvas.drawRect(97, 300, 103, 1400, p);
-            canvas.drawLine(85, 315, 100, 300, p);
-            canvas.drawLine(115, 315, 100, 300, p);
-            canvas.drawLine(965, 1385, 980, 1400, p);
-            canvas.drawLine(965, 1415, 980, 1400, p);
-            canvas.drawText("日期",1000,1415,p);
-            canvas.drawText("使用时间",45,270,p);
-            int maxy=0;
+            int strokeWidth=(int)(Math.round(screenHeight/360.0));
+            p.setStrokeWidth(strokeWidth);
+            canvas.drawRect((float)(screenWidth*0.1-strokeWidth*0.5),(float)(screenHeight*0.2),(float)(screenWidth*0.1+strokeWidth*0.5),(float)(screenHeight*0.8),p);
+            canvas.drawRect((float)(screenWidth*0.1),(float)(screenHeight*0.8-strokeWidth*0.5),(float)(screenWidth*0.9),(float)(screenHeight*0.8+strokeWidth*0.5),p);
+            float pointerLength=(float) (screenWidth/72.0);
+            canvas.drawLine((float)(screenWidth*0.1-pointerLength),(float)(screenHeight*0.2+pointerLength),(float)(screenWidth*0.1),(float)(screenHeight*0.2),p);
+            canvas.drawLine((float)(screenWidth*0.1+pointerLength),(float)(screenHeight*0.2+pointerLength),(float)(screenWidth*0.1),(float)(screenHeight*0.2),p);
+            canvas.drawLine((float)(screenWidth*0.9-pointerLength),(float)(screenHeight*0.8-pointerLength),(float)(screenWidth*0.9),(float)(screenHeight*0.8),p);
+            canvas.drawLine((float)(screenWidth*0.9-pointerLength),(float)(screenHeight*0.8+pointerLength),(float)(screenWidth*0.9),(float)(screenHeight*0.8),p);
+            p.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText("使用时间",(float)(screenWidth*0.1),(float)(screenHeight*0.2-pointerLength*2),p);
+            p.setTextAlign(Paint.Align.LEFT);
+            rectf.set(0,(int) (screenHeight*0.8),screenWidth,(int) (screenHeight*0.8));
+            canvas.drawText("日期",(float)(screenWidth*0.9+pointerLength),getBaseLine(p,rectf),p);
+
+
+            float datum=(float)(screenHeight*0.55/(maxSecond/3600+1)/3600.0);
             for(int i=0;i<10;i++)
             {
-                if(a[i][1]>maxy)maxy=a[i][1];
-            }
-            if(maxy%3600!=0)
-            {
-                maxy=maxy-maxy%3600+3600;
-            }
-            float standard=(float) (1000.0/maxy);
-            for(int k=1;k<maxy/3600+1;k++)
-            {
-                canvas.drawRect(100,1400-k*3600*standard,108, 1400-k*3600*standard+5, p);
-                canvas.drawText(String.valueOf(k)+"h",k>9?35:50,1415-k*3600*standard,p);
-            }
-
-
-            for(int i=0;i<10;i++)
-            {
-                Date d=new Date();
-                d.setTime(1405353600000L+(long)a[i][0]*86400000L);
-
-                canvas.drawCircle(180+80*i,1400-a[i][1]*standard, 10, p);
-                canvas.drawText(String.valueOf(d.getDate()),170+80*i,1450,p);
-                location[i][0]=180+80*i;
-                location[i][1]=1400-a[i][1]*standard;
+                location[i][0]=(float)(screenWidth*(0.17272+0.07272*i));
+                location[i][1]=(float)(0.8*screenHeight-dayAndSeond[i][1]*datum);
+                canvas.drawCircle(location[i][0],location[i][1],(float)(screenWidth/108.0),p);
             }
             for(int i=0;i<9;i++)
             {
-                canvas.drawLine(location[i][0], location[i][1], location[i+1][0], location[i+1][1], p);
+                canvas.drawLine(location[i][0],location[i][1],location[i+1][0],location[i+1][1],p);
+            }
+            p.setTextAlign(Paint.Align.CENTER);
+            Time t=new Time();
+            for(int i=0;i<10;i++)
+            {
+                t.set(1405353600000L + (long) dayAndSeond[i][0] * 86400000L);
+                canvas.drawText(""+t.monthDay,(float)(screenWidth*(0.17272+0.07272*i)),(float)(screenHeight*0.8+pointerLength+screenWidth/35.0),p);
+            }
+            for(int i=1;i<=maxSecond/3600+1;i++)
+            {
+                float high=(float)(screenHeight*0.8-i*3600*datum);
+                canvas.drawLine((float)(0.1*screenWidth),high,(float)(0.1*screenWidth+pointerLength),high,p);
+                rectf.set(0,high,0,high);
+                canvas.drawText(""+i+"h",(float)(0.1*screenWidth-pointerLength-screenWidth/35.0),getBaseLine(p,rectf),p);
             }
         }
         else
         {
-            p.setStrokeWidth(10);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawLine(540,620,540,600, p);
-            canvas.drawLine(240,900,260,900, p);
-            canvas.drawLine(820,900,840,900, p);
-            canvas.drawLine(540,1180,540,1200, p);
-
-            canvas.drawText("0",535,650, p);
-            canvas.drawText("18",270,910, p);
-            canvas.drawText("12",525,1170, p);
-            canvas.drawText("6",800,910, p);
-
-            p.setStrokeWidth(5);
+            int strokeWidth=(int)(Math.round(screenHeight/360.0));
+            p.setStrokeWidth(strokeWidth);
             p.setStyle(Paint.Style.STROKE);
-            canvas.drawArc(new RectF(40,400,1040,1400),0,360,false, p);
-            canvas.drawArc(new RectF(240,600,840,1200),0,360,false, p);
-            RectF rectf1=new RectF(245,605,835,1195);
-            p.setStrokeWidth(10);
+            rectf.set((float) (screenWidth * 0.05), (float) (screenHeight * 0.5 - screenWidth * 0.45), (float) (screenWidth * 0.95), (float) (screenHeight * 0.5 + screenWidth * 0.45));
+            canvas.drawArc(rectf, 0, 360, false, p);
+            rectf.set((float)(screenWidth*0.25),(float)(screenHeight*0.5-screenWidth*0.25),(float)(screenWidth*0.75),(float)(screenHeight*0.5+screenWidth*0.25));
+            canvas.drawArc(rectf,0,360,false, p);
+            p.setStrokeWidth((int)(Math.round(screenHeight/108.0)));
+            rectf.set((float)(screenWidth*0.25+strokeWidth),(float)(screenHeight*0.5-screenWidth*0.25+strokeWidth),(float)(screenWidth*0.75-strokeWidth),(float)(screenHeight*0.5+screenWidth*0.25-strokeWidth));
             for(int i=0;i<24;i++)
             {
-                canvas.drawArc(rectf1,(float) (i*15-0.5),1,false,p);
+                canvas.drawArc(rectf,(float) (i*15-0.5),1,false,p);
             }
-            p.setStrokeWidth(200);
-            RectF rectf2=new RectF(140,500,940,1300);
+            strokeWidth=(int)(Math.round(screenHeight/60.0));
+            p.setStrokeWidth(strokeWidth);
+            rectf.set((float) (screenWidth * 0.25 + strokeWidth * 0.5), (float) (screenHeight * 0.5 - screenWidth * 0.25 + strokeWidth * 0.5), (float) (screenWidth * 0.75 - strokeWidth * 0.5), (float) (screenHeight * 0.5 + screenWidth * 0.25 - strokeWidth * 0.5));
+            for(int i=0;i<4;i++)
+            {
+                canvas.drawArc(rectf,(float) (i*90-1),2,false,p);
+            }
+            p.setStyle(Paint.Style.FILL);
+            p.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText("0", (float) (screenWidth * 0.5), (float) (screenHeight * 0.5 - screenWidth * 0.25 + screenWidth / 18), p);
+            canvas.drawText("12",(float)(screenWidth*0.5),(float)(screenHeight*0.5+screenWidth*0.25-screenWidth/25),p);
+            rectf.set(0,(float)(0.5*screenHeight),0,(float)(0.5*screenHeight));
+            canvas.drawText("6",(float)(screenWidth*0.75-screenWidth/25),getBaseLine(p,rectf),p);
+            canvas.drawText("18",(float)(screenWidth*0.25+screenWidth/20),getBaseLine(p,rectf),p);
+            dayNum=dayAndSeond[pickedday][0];
 
-            DBManager dbManager=new DBManager(MyApplication.getInstance());
-            Cursor c=dbManager.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
+            Cursor d=mDBManager.query("select * from timeinfo where datenum="+dayNum);
 
             int begin=0;
             int end=0;
-            while(c.moveToNext())
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth((float)(0.2*screenWidth));
+            rectf.set((float)(0.15*screenWidth),(float)(0.5*screenHeight-0.35*screenWidth),(float)(0.85*screenWidth),(float)(0.5*screenHeight+0.35*screenWidth));
+
+            while(d.moveToNext())
             {
-                if(end==c.getInt(2))
+                if(end==d.getInt(2))
                 {
-                    end=c.getInt(3);
+                    end=d.getInt(3);
                 }
                 else
                 {
-                    canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
-                    begin=c.getInt(2);
-                    end=c.getInt(3);
+                    canvas.drawArc(rectf,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
+                    begin=d.getInt(2);
+                    end=d.getInt(3);
                 }
             }
-            canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
-            c.close();
-            dbManager.closeDB();
-            p.setTypeface(MyApplication.gettypeface());
-            p.setTextSize(140);
-            String time="";
-            int seconds=a[pickedday][1];
-            if(seconds/3600<10)time+="0";
-            time+=String.valueOf(seconds/3600);
-            time+=":";
-            long minutes=seconds%3600;
-            if(minutes/60<10)time+="0";
-            time+=String.valueOf(minutes/60);
+            canvas.drawArc(rectf,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
+            d.close();
             p.setStyle(Paint.Style.FILL);
-            canvas.drawText(time,367,950,p);
-            p.setTypeface(Typeface.DEFAULT);
-            p.setTextSize(45);
-            Date d=new Date();
-            d.setTime(1405353600000L+(long)a[pickedday][0]*86400000L);
-            String date=String.valueOf(1900+d.getYear())+"年"+String.valueOf(1+d.getMonth())+"月"+String.valueOf(d.getDate())+"日详情";
-            canvas.drawText(date,350,200,p);
-            p.setTextSize(30);
-            p.setStyle(Paint.Style.STROKE);
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setTextSize((float) (screenWidth/20.0));
+            rectf.set(0,(float)(0.5*screenHeight-0.6*screenWidth),0,(float)(0.5*screenHeight-0.6*screenWidth));
+            Time t=new Time();
+            t.set(1405353600000L + (long) (dayNum * 86400000L));
+            canvas.drawText(""+t.year+"年"+(t.month+1)+"月"+t.monthDay+"日详情",(float)(screenWidth*0.5),getBaseLine(p,rectf),p);
+            p.setTextSize((float) (screenWidth/10.0));
+            rectf.set((float)(0.5*screenWidth),(float)(0.5*screenHeight),(float)(0.5*screenWidth),(float)(0.5*screenHeight));
+
+            int seconds=dayAndSeond[pickedday][1];
+            String s="";
+            if(seconds/3600<10)s+="0";
+            s+=String.valueOf(seconds/3600);
+            s+=":";
+            long minutes=seconds%3600;
+            if(minutes/60<10)s+="0";
+            s+=String.valueOf(minutes/60);
+            p.setTypeface(MyApplication.gettypeface());
+            canvas.drawText(s,(float)(0.5*screenWidth),getBaseLine(p,rectf),p);
         }
-        p.setStrokeWidth(5);
+        mDBManager.closeDB();
     }
-    public void drawmx2(Canvas canvas)
+
+    protected float getBaseLine(Paint p,RectF rectf)
     {
-        p.setTextSize(25);
-        if(!showdetail)
-        {
-            p.setStrokeWidth(4);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawRect(80, 1038, 720, 1042, p);
-            canvas.drawRect(78, 200, 82, 1040, p);
-
-            canvas.drawLine(68, 212, 80, 200, p);
-            canvas.drawLine(92, 212, 80, 200, p);
-            canvas.drawLine(708, 1028, 720, 1040, p);
-            canvas.drawLine(708, 1052, 720, 1040, p);
-
-            canvas.drawText("日期",730,1050,p);
-            canvas.drawText("使用时间",30,180,p);
-
-            int maxy=0;
-            for(int i=0;i<10;i++)
-            {
-                if(a[i][1]>maxy)maxy=a[i][1];
-            }
-            if(maxy%3600!=0)
-            {
-                maxy=maxy-maxy%3600+3600;
-            }
-            float standard=(float) (800.0/maxy);
-            for(int k=1;k<maxy/3600+1;k++)
-            {
-                canvas.drawRect(80,1040-k*3600*standard,88,1040-k*3600*standard+4, p);
-                canvas.drawText(String.valueOf(k)+"h",k>9?38:50,1050-k*3600*standard,p);
-            }
-
-
-            for(int i=0;i<10;i++)
-            {
-                Date d=new Date();
-                d.setTime(1405353600000L+(long)a[i][0]*86400000L);
-
-                canvas.drawCircle(140+60*i,1040-a[i][1]*standard, 8, p);
-                canvas.drawText(String.valueOf(d.getDate()),130+60*i,1070,p);
-                location[i][0]=140+60*i;
-                location[i][1]=1040-a[i][1]*standard;
-            }
-            for(int i=0;i<9;i++)
-            {
-                canvas.drawLine(location[i][0], location[i][1], location[i+1][0], location[i+1][1], p);
-            }
-        }
-        else
-        {
-            p.setStrokeWidth(8);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawLine(400,440,400,460, p);
-            canvas.drawLine(400,820,400,840, p);
-            canvas.drawLine(200,640,220,640, p);
-            canvas.drawLine(580,640,600,640, p);
-
-
-            canvas.drawText("0",395,485, p);
-            canvas.drawText("12",390,805, p);
-            canvas.drawText("6",560,650, p);
-            canvas.drawText("18",230,650, p);
-
-            p.setStrokeWidth(5);
-            p.setStyle(Paint.Style.STROKE);
-            canvas.drawArc(new RectF(50,290,750,990),0,360,false, p);
-            canvas.drawArc(new RectF(200,440,600,840),0,360,false, p);
-            RectF rectf1=new RectF(205,445,595,835);
-            p.setStrokeWidth(10);
-            for(int i=0;i<24;i++)
-            {
-                canvas.drawArc(rectf1,(float) (i*15-0.5),1,false,p);
-            }
-
-            p.setStrokeWidth(150);
-            RectF rectf2=new RectF(125,365,675,915);
-            DBManager dbManager=new DBManager(MyApplication.getInstance());
-            Cursor c=dbManager.query("select * from timeinfo where datenum="+String.valueOf(a[pickedday][0]));
-            dbManager.closeDB();
-            int begin=0;
-            int end=0;
-            while(c.moveToNext())
-            {
-                if(end==c.getInt(2))
-                {
-                    end=c.getInt(3);
-                }
-                else
-                {
-                    canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
-                    begin=c.getInt(2);
-                    end=c.getInt(3);
-                }
-            }
-            canvas.drawArc(rectf2,(float)(begin/240.0-90),(float)((end-begin)/240.0),false,p);
-            c.close();
-            p.setTypeface(MyApplication.gettypeface());
-            p.setTextSize(100);
-            String time="";
-            int seconds=a[pickedday][1];
-            if(seconds/3600<10)time+="0";
-            time+=String.valueOf(seconds/3600);
-            time+=":";
-            long minutes=seconds%3600;
-            if(minutes/60<10)time+="0";
-            time+=String.valueOf(minutes/60);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawText(time,280,680,p);
-            p.setTypeface(Typeface.DEFAULT);
-            p.setTextSize(40);
-            Date d=new Date();
-            d.setTime(1405353600000L+(long)a[pickedday][0]*86400000L);
-            String date=String.valueOf(1900+d.getYear())+"年"+String.valueOf(1+d.getMonth())+"月"+String.valueOf(d.getDate())+"日详情";
-            canvas.drawText(date,230,180,p);
-            p.setTextSize(30);
-            p.setStyle(Paint.Style.STROKE);
-        }
-        p.setStrokeWidth(5);
+        Paint.FontMetricsInt fontMetrics = p.getFontMetricsInt();
+        return rectf.top + (rectf.bottom - rectf.top - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
     }
 }

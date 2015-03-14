@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 
@@ -14,12 +15,13 @@ public class MainView extends View {
     private long seconds=0;
     private int hour=0;
     private int screenon_frequency=1;
-    int screenWidth;
-    int screenHeight;
-    RectF rectf1;
-    RectF rectf2;
-    RectF rectf3;
-    RectF rectf4;
+    DisplayMetrics dm = this.getResources().getDisplayMetrics();
+    int screenWidth = dm.widthPixels;
+    int screenHeight = dm.heightPixels;
+    RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
+    RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
+    RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
+    RectF rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
 
 
     public MainView(Context context, AttributeSet attr) {
@@ -33,17 +35,6 @@ public class MainView extends View {
         postInvalidate();
     }
     @Override
-    public void onLayout(boolean changed,int left,int top,int right,int buttom)
-    {
-        super.onLayout(changed,left,top,right,buttom);
-        screenHeight=getHeight();
-        screenWidth=getWidth();
-        rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
-        rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
-        rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
-        rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
-    }
-    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
@@ -54,7 +45,7 @@ public class MainView extends View {
         if(seconds%60!=0)
         {
             p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth((float) 5.0);
+            p.setStrokeWidth((float)(Math.round(screenHeight/360.0)));
             canvas.drawArc(rectf2,(seconds%60)*6-90,360-(seconds%60)*6,false, p);
         }
         //时刻

@@ -8,16 +8,18 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class AboutView extends View {
-    int screenWidth;
-    int screenHeight;
-    RectF rectf1;
-    RectF rectf2;
-    RectF rectf3;
-    RectF rectf4;
+    DisplayMetrics dm = this.getResources().getDisplayMetrics();
+    int screenWidth = dm.widthPixels;
+    int screenHeight = dm.heightPixels;
+    RectF rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
+    RectF rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
+    RectF rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
+    RectF rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
     String version="";
 
     int password=0;
@@ -29,17 +31,6 @@ public class AboutView extends View {
         super(context,attrs);
         this.version="2.31FTL";
         postInvalidate();
-    }
-    @Override
-    public void onLayout(boolean changed,int left,int top,int right,int buttom)
-    {
-        super.onLayout(changed,left,top,right,buttom);
-        screenHeight=getHeight();
-        screenWidth=getWidth();
-        rectf1=new RectF(0,(int) (screenHeight/8.0),screenWidth,(int) (screenHeight/8.0));
-        rectf2=new RectF((int) (0.3*screenWidth),(int) (screenHeight/3.0-0.2*screenWidth),(int) (0.7*screenWidth),(int) (screenHeight/3.0+0.2*screenWidth));
-        rectf3=new RectF(0,(int) (screenHeight*0.55),screenWidth,(int) (screenHeight*0.55));
-        rectf4=new RectF(0,(int) (screenHeight*0.7),screenWidth,(int) (screenHeight*0.7));
     }
     private int getAreaNum(MotionEvent event)
     {

@@ -1,13 +1,11 @@
 package info.walsli.timestatistics;
 
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,20 +13,16 @@ import android.view.Window;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Calendar;
 
 public class StatisticsActivity extends Activity {
-    StatisticsView canvasview;
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor editor;
-    IntentFilter filter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_statistics);
-        findViewById(R.id.container).setBackgroundResource(R.drawable.defaultbackground);
-        viewinit();
+        findViewById(R.id.activity_statistics).setBackgroundResource(R.drawable.defaultbackground);
         fucksmartbar();
 
         IntentFilter filter = new IntentFilter();
@@ -70,85 +64,6 @@ public class StatisticsActivity extends Activity {
         }
         getActionBar().setDisplayOptions(0);
         //Log.e("walsli","invoke");
-    }
-    public int getGapCount() {
-        Calendar fromCalendar = Calendar.getInstance();
-        fromCalendar.set(Calendar.YEAR, 2014);
-        fromCalendar.set(Calendar.MONTH, 6);
-        fromCalendar.set(Calendar.DATE,15);
-        fromCalendar.set(Calendar.HOUR_OF_DAY, 0);
-        fromCalendar.set(Calendar.MINUTE, 0);
-        fromCalendar.set(Calendar.SECOND, 0);
-        fromCalendar.set(Calendar.MILLISECOND, 0);
-        Calendar toCalendar = Calendar.getInstance();
-        toCalendar.set(Calendar.HOUR_OF_DAY, 0);
-        toCalendar.set(Calendar.MINUTE, 0);
-        toCalendar.set(Calendar.SECOND, 0);
-        toCalendar.set(Calendar.MILLISECOND, 0);
-        return (int) ((toCalendar.getTime().getTime() - fromCalendar.getTime().getTime()) / (1000 * 60 * 60 * 24));
-    }
-    private void viewinit()
-    {
-        if(DBHelper.lock)
-        {
-            //TODO write
-        }
-        else
-        {
-            DBManager dbManager=new DBManager(MyApplication.getInstance());
-            dbManager.calculateTimeOfDays(getGapCount());
-            Cursor c=dbManager.query("select * from timeofdays order by datenum asc;");
-
-            int a[][]=new int[c.getCount()][2];
-            int i=0;
-            while(c.moveToNext())
-            {
-                a[i][0]=c.getInt(1);
-                a[i][1]=c.getInt(2);
-                i++;
-            }
-            int b[][]=new int[10][2];
-            if(c.getCount()<10)
-            {
-                int startmark=a[0][0]-10+c.getCount();
-                for(int k=0;k<10-c.getCount();k++)
-                {
-                    b[k][0]=startmark;
-                    b[k][1]=0;
-                    startmark++;
-                }
-                for(int k=10-c.getCount();k<10;k++)
-                {
-                    b[k][0]=a[k+c.getCount()-10][0];
-                    b[k][1]=a[k+c.getCount()-10][1];
-                }
-            }
-            else if(c.getCount()==10)
-            {
-                for(int k=0;k<10;k++)
-                {
-                    b[k][0]=a[k][0];
-                    b[k][1]=a[k][1];
-                }
-            }
-            else if(c.getCount()>10)
-            {
-                for(int k=0;k<10;k++)
-                {
-                    b[k][0]=a[c.getCount()-10+k][0];
-                    b[k][1]=a[c.getCount()-10+k][1];
-                }
-            }
-            c.close();
-            dbManager.closeDB();
-            this.canvasview=new StatisticsView(this,b);
-            canvasview.invalidate();
-            canvasview.layout(0, 0, 0, 0);
-            LayoutParams lp=new LayoutParams(0);
-            this.addContentView(canvasview, lp);
-        }
-
-
     }
 
     @Override

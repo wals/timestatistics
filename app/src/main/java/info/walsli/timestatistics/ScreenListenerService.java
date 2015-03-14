@@ -103,7 +103,7 @@ public class ScreenListenerService extends Service {
                 }
                 try
                 {
-                    Thread.sleep(1000);
+                    Thread.sleep(1000);//TODO 用户自己选择精度
                 }
                 catch (InterruptedException e)
                 {
@@ -128,7 +128,7 @@ public class ScreenListenerService extends Service {
         NotificationManager mNotificationManager = (NotificationManager)getSystemService(ns);
         CharSequence contentText = "您今天已经使用手机"+String.valueOf(mins)+"分钟了，请放下手机休息一下吧"; //通知栏内容
         long when = System.currentTimeMillis();
-        int icon = R.drawable.sb;
+        int icon = R.drawable.icon;//TODO
         Notification notification = new Notification(icon,contentText,when);
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         Context context = getApplicationContext(); //上下文
